@@ -1,0 +1,37 @@
+# Command: docker-compose --env-file .env.local -f docker-compose.local.yaml up -d
+
+services:
+  user-db:
+    hostname: "user-db"
+    image: postgres:16.4
+    container_name: "user-db"
+    build:
+      context: ./backend/user/src/lib/db
+    env_file:
+      - ./backend/user/.env.local
+    volumes:
+      - "user-db-docker:${USER_PGDATA}"
+    ports:
+      - "${USER_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
+
+  question-db:
+    hostname: "question-db"
+    image: postgres:16.4
+    container_name: "question-db"
+    build:
+      context: ./backend/question/src/lib/db
+    env_file:
+      - ./backend/question/.env.local
+    volumes:
+      - "question-db-docker:${QUESTION_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "${QUESTION_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
+
+volumes:
+  user-db-docker:
+    external: true
+  question-db-docker:
+    external: true

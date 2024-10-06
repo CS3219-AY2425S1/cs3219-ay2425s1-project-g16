@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: question-db
+  name: question-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: question-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/code-question-db-network: "true"
+        io.kompose.service: question-db
+    spec:
+      containers:
+        - env:
+            - name: EXPRESS_DB_HOST
+              value: localhost
+            - name: EXPRESS_DB_PORT
+              value: "5433"
+            - name: EXPRESS_ENV
+              value: local
+            - name: EXPRESS_PORT
+              value: "9002"
+            - name: PEERPREP_UI_HOST
+              value: http://localhost:5173
+            - name: PGDATA
+              value: /data/qn-db
+            - name: POSTGRES_DB
+              value: question
+            - name: POSTGRES_PASSWORD
+              value: Xk8qEcEI2sizjfEn/lF6mLqiyBECjIHY3q6sdXf9poQ=
+            - name: POSTGRES_USER
+              value: peerprep-qn-express
+          image: postgres:16.4
+          name: question-db
+          volumeMounts:
+            - mountPath: /data/qn-db
+              name: question-db-docker
+      hostname: question-db
+      restartPolicy: Always
+      volumes:
+        - name: question-db-docker
+          persistentVolumeClaim:
+            claimName: question-db-docker
