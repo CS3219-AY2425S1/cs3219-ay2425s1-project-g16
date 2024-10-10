@@ -30,8 +30,23 @@ services:
       - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
 
+  collab-db:
+    hostname: "collab-db"
+    image: postgres:16.4
+    container_name: "collab-db"
+    env_file:
+      - ./backend/collaboration/.env.local
+    volumes:
+      - "collab-db-docker:${COLLAB_PGDATA}"
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "${COLLAB_EXPRESS_DB_PORT}:5432"
+    restart: unless-stopped
+
 volumes:
   user-db-docker:
     external: true
   question-db-docker:
+    external: true
+  collab-db-docker:
     external: true

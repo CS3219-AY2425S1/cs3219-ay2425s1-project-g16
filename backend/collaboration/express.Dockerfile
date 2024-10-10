@@ -2,6 +2,7 @@ FROM node:lts-alpine AS build
 WORKDIR /data/collab-express
 COPY package*.json ./
 RUN npm install
+ARG env
 COPY . .
 RUN npm run build
 
