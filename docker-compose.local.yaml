@@ -30,8 +30,31 @@ services:
       - "${QUESTION_EXPRESS_DB_PORT}:5432"
     restart: unless-stopped
 
+  match-db:
+    hostname: "match-db"
+    image: redis/redis-stack
+    container_name: "match-db"
+    env_file:
+      - ./backend/matching/.env.local
+    volumes:
+      - "match-db-docker:/data"
+    ports:
+      - "${MATCHING_DB_HOST_MGMT_PORT}:8001"
+      - "${MATCHING_DB_HOST_PORT}:6379"
+    restart: unless-stopped
+  
+  # match-db-ui:
+  #   hostname: "match-db-ui"
+  #   image: redis/redisinsight
+  #   container_name: "match-db-ui"
+  #   ports:
+  #     - "${MATCHING_DB_HOST_MGMT_PORT}:5540"
+  #   restart: unless-stopped
+
 volumes:
   user-db-docker:
     external: true
   question-db-docker:
+    external: true
+  match-db-docker:
     external: true

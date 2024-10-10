@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "build:local": "env-cmd -f .env.local tsc && tsc-alias",
     "start:local": "env-cmd -f .env.local node dist/index.js",
+    "db:seed": "env-cmd -f .env.local tsx src/lib/db/seed.ts",
     "fmt": "prettier --config .prettierrc src --write",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,15 +17,19 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "async": "^3.2.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "env-cmd": "^10.1.0",
     "express": "^4.21.0",
     "http-status-codes": "^2.3.0",
     "pino": "^9.4.0",
-    "pino-http": "^10.3.0"
+    "pino-http": "^10.3.0",
+    "redis": "^4.7.0",
+    "socket.io": "^4.8.0"
   },
   "devDependencies": {
+    "@types/async": "^3.2.24",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.5",

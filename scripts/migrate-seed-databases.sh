@@ -9,7 +9,7 @@ for service in "${migrate_services[@]}"; do
 done
 
 # Seed Services
-seeded_services=("question" "user")
+seeded_services=("question" "user" "matching")
 for service in "${seeded_services[@]}"; do
   cd "backend/$service"
   npm run db:seed
