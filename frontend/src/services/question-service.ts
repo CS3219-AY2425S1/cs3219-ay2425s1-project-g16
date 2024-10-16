@@ -7,7 +7,7 @@ const QUESTION_SERVICE_ROUTES = {
   GET_QUESTION_DETAILS: '/questions/<questionId>',
 };
 
-type IGetQuestionDetailsResponse = {
+export type IGetQuestionDetailsResponse = {
   question: {
     title: string;
     description: string;

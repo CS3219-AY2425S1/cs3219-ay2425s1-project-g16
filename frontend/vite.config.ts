@@ -36,6 +36,19 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/collaboration-service': {
+          target: env.VITE_COLLAB_SERVICE,
+          rewrite: (path) => path.replace(/^\/collaboration-service/, ''),
+          changeOrigin: true,
+          cookiePathRewrite: {
+            '*': '/',
+          },
+        },
+        '/collab-ws': {
+          target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
+          rewrite: (path) => path.replace(/\/collab-ws/, ''),
+          ws: true,
+        },
       },
     },
   };

@@ -6,6 +6,8 @@ export const ROUTES = {
   HOME: '/',
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
+
+  INTERVIEW: '/interview/:roomId',
 };
 
 const TOP_LEVEL_AUTHED_ROUTES = {
