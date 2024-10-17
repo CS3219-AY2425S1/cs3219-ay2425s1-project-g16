@@ -7,6 +7,7 @@ on:
       - master
 
 env:
+  DOCKER_REGISTRY_USN: ay2425s1cs3219g16
   USER_EXPRESS_PORT: 9001
   QUESTION_EXPRESS_PORT: 9002
   COLLAB_EXPRESS_PORT: 9003
@@ -40,55 +41,55 @@ jobs:
             - 'frontend/**'
     - id: set-matrix
       run: |
-        echo "$USER_EXPRESS_PORT"
         # Create the matrix based on the filters
         matrix=()
         if [[ "${{ steps.filter.outputs.user }}" == "true" ]]; then
-          matrix+=('{
-            "package": "user", 
-            "image": "ay2425s1cs3219g16/user-express", 
-            "context": "./backend/user", 
-            "dockerfile": "./backend/user/express.Dockerfile", 
-            "build-args": "port=9001"
-          }')
+          matrix+=("{
+            \"package\": \"user\", 
+            \"image\": \"$DOCKER_REGISTRY_USN/user-express\", 
+            \"context\": \"./backend/user\", 
+            \"dockerfile\": \"./backend/user/express.Dockerfile\", 
+            \"build-args\": \"port=$USER_EXPRESS_PORT\"
+          }")
         fi
         if [[ "${{ steps.filter.outputs.question }}" == "true" ]]; then
-          matrix+=('{
-            "package": "question", 
-            "image": "ay2425s1cs3219g16/question-express", 
-            "context": "./backend/question", 
-            "dockerfile": "./backend/question/express.Dockerfile", 
-            "build-args": "port=9002"
-          }')
+          matrix+=("{
+            \"package\": \"question\", 
+            \"image\": \"$DOCKER_REGISTRY_USN/question-express\", 
+            \"context\": \"./backend/question\", 
+            \"dockerfile\": \"./backend/question/express.Dockerfile\", 
+            \"build-args\": \"port=$QUESTION_EXPRESS_PORT\"
+          }")
         fi
         if [[ "${{ steps.filter.outputs.collaboration }}" == "true" ]]; then
-          matrix+=('{
-            "package": "collaboration", 
-            "image": "ay2425s1cs3219g16/collab-express", 
-            "context": "./backend/collaboration", 
-            "dockerfile": "./backend/collaboration/express.Dockerfile", 
-            "build-args": "port=9003"
-          }')
+          matrix+=("{
+            \"package\": \"collaboration\", 
+            \"image\": \"$DOCKER_REGISTRY_USN/collab-express\", 
+            \"context\": \"./backend/collaboration\", 
+            \"dockerfile\": \"./backend/collaboration/express.Dockerfile\", 
+            \"build-args\": \"port=$COLLAB_EXPRESS_PORT\"
+          }")
         fi
         if [[ "${{ steps.filter.outputs.matching }}" == "true" ]]; then
-          matrix+=('{
-            "package": "matching", 
-            "image": "ay2425s1cs3219g16/match-express", 
-            "context": "./backend/matching", 
-            "dockerfile": "./backend/matching/express.Dockerfile", 
-            "build-args": "port=9004"
-          }')
+          matrix+=("{
+            \"package\": \"matching\", 
+            \"image\": \"$DOCKER_REGISTRY_USN/match-express\", 
+            \"context\": \"./backend/matching\", 
+            \"dockerfile\": \"./backend/matching/express.Dockerfile\", 
+            \"build-args\": \"port=$MATCH_EXPRESS_PORT\"
+          }")
         fi
         if [[ "${{ steps.filter.outputs.frontend }}" == "true" ]]; then
-          matrix+=('{
-            "package": "frontend", 
-            "image": "ay2425s1cs3219g16/frontend", 
-            "context": "./frontend", 
-            "dockerfile": "./frontend/frontend.Dockerfile", 
-            "build-args": "port=3000"
-          }')
+          matrix+=("{
+            \"package\": \"frontend\", 
+            \"image\": \"$DOCKER_REGISTRY_USN/frontend\", 
+            \"context\": \"./frontend\", 
+            \"dockerfile\": \"./frontend/frontend.Dockerfile\", 
+            \"build-args\": \"port=$FRONTEND_PORT\"
+          }")
         fi
         formatted_matrix=$(echo "[${matrix[*]}]" | jq -c .)
+        echo "Outputs Generated: $formatted_matrix"
         echo "matrix=$formatted_matrix" >> $GITHUB_OUTPUT
 
   build-and-push-image:
