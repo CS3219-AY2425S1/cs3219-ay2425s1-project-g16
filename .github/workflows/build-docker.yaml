@@ -58,6 +58,7 @@ jobs:
       - name: Build and push Docker images for PeerPrep Services
         uses: docker/build-push-action@v6.9.0
         with:
+          platforms: linux/amd64,linux/arm64
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           build-args: ${{ matrix.build-args }}
