@@ -1,0 +1,61 @@
+name: Build & publish PeerPrep images
+on:
+  [push]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: user-express
+            context: ./backend/user
+            dockerfile: express.Dockerfile
+            build-args: [port=9001]
+          - image: question-express
+            context: ./backend/question
+            dockerfile:  express.Dockerfile
+            build-args: [port=9002]
+          - image: collab-express
+            context: ./backend/collaboration
+            dockerfile:  express.Dockerfile
+            build-args: [port=9003]
+          - image: match-express
+            context: ./backend/matching
+            dockerfile:  express.Dockerfile
+            build-args: [port=9004]
+          - image: frontend
+            context: ./frontend
+            dockerfile:  frontend.Dockerfile
+            build-args: [port=3000]
+          
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action
+        with:
+          images: ${{ matrix.image }}
+
+      - name: Build and push Docker images for Peerprep Services
+        uses: docker/build-push-action
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build-args }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
