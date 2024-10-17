@@ -12,28 +12,28 @@ jobs:
           - image: user-express
             context: ./backend/user
             dockerfile: express.Dockerfile
-            build-args: 
-            - port=9001
+            build-args: |
+              port=9001
           - image: question-express
             context: ./backend/question
             dockerfile:  express.Dockerfile
-            build-args: 
-            - port=9002
+            build-args: |
+              port=9002
           - image: collab-express
             context: ./backend/collaboration
             dockerfile:  express.Dockerfile
-            build-args: 
-            - port=9003
+            build-args: |
+              port=9003
           - image: match-express
             context: ./backend/matching
             dockerfile:  express.Dockerfile
-            build-args: 
-            - port=9004
+            build-args: |
+              port=9004
           - image: frontend
             context: ./frontend
             dockerfile:  frontend.Dockerfile
-            build-args: 
-            - port=3000
+            build-args: |
+              port=3000
           
     permissions:
       contents: read
