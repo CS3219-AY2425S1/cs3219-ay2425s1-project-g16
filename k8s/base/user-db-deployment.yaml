@@ -1,0 +1,67 @@
+#! user-db-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: user-db
+    namespace: code
+    labels:
+        com.docker.compose.project: code
+        com.docker.compose.service: user-db
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: code
+            com.docker.compose.service: user-db
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: code
+                com.docker.compose.service: user-db
+                com.docker.compose.network.user-db-network: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: user-db
+                  image: postgres:16.4
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: EXPRESS_DB_HOST
+                      value: "user-db"
+                    - name: EXPRESS_DB_PORT
+                      value: "5432"
+                    - name: EXPRESS_JWT_SECRET_KEY
+                      value: "jd+9qlXA0a3YsmVf2KJgyiJ3SprIR318IAwhRXck4Y8="
+                    - name: EXPRESS_PORT
+                      value: "9001"
+                    - name: PGDATA
+                      value: "/data/user-db"
+                    - name: POSTGRES_DB
+                      value: "user"
+                    - name: POSTGRES_PASSWORD
+                      value: "69/X8JxtAVsM+0YHT4RR5D7Ahf7bTobI4EED64FrzIU="
+                    - name: POSTGRES_USER
+                      value: "peerprep-user-express"
+                  livenessProbe:
+                    exec:
+                        command:
+                            - /bin/sh
+                            - -c
+                            - pg_isready -U peerprep-user-express -d user
+                    periodSeconds: 10
+                    initialDelaySeconds: 30
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: user-db-5432
+                      containerPort: 5432
+                  volumeMounts:
+                    - name: data-user-db
+                      mountPath: /data/user-db
+            volumes:
+                - name: data-user-db
+                  persistentVolumeClaim:
+                    claimName: user-db-user-db-docker

@@ -1,0 +1,18 @@
+#! matching-service-expose.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: matching-service
+    namespace: code
+    labels:
+        com.docker.compose.project: code
+        com.docker.compose.service: matching-service
+spec:
+    selector:
+        com.docker.compose.project: code
+        com.docker.compose.service: matching-service
+    ports:
+        - name: matching-s-9004
+          port: 9004
+          targetPort: matching-s-9004
