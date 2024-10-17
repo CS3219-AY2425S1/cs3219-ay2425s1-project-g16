@@ -21,7 +21,9 @@ const NavBar = observer(() => {
         <Logo className='text-md' />
         {!isUnauthedRoute && (
           <>
-            <Button variant='ghost'>Start</Button>
+            <Button variant='ghost' asChild>
+              <Link to={ROUTES.MATCH}>Start</Link>
+            </Button>
             <Button variant='ghost' asChild>
               <Link to={ROUTES.QUESTIONS}>Questions</Link>
             </Button>

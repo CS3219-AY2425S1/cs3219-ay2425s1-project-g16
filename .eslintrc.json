@@ -11,7 +11,14 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["import", "unused-imports", "react", "@typescript-eslint", "tailwindcss"],
+  "plugins": [
+    "import",
+    "unused-imports",
+    "react",
+    "@typescript-eslint",
+    "tailwindcss",
+    "react-hooks"
+  ],
   "rules": {
     // "@next/next/no-img-element": "off",
     "@typescript-eslint/no-explicit-any": "warn",

@@ -6,6 +6,8 @@ import {
   getQuestionDetailsService,
   getRandomQuestionService,
   searchQuestionsByTitleService,
+  getTopicsService,
+  getDifficultiesService,
 } from '@/services/get/index';
 import type {
   ICreateQuestionPayload,
@@ -169,6 +171,28 @@ export const deleteQuestion = async (req: Request, res: Response): Promise<Respo
   try {
     const result = await deleteQuestionService(payload);
     return res.status(result.code).json(result.success ? 'Ok' : result.message);
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const getTopics = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const result = await getTopicsService();
+    return res.status(result.code).json(result.data);
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred', error });
+  }
+};
+
+export const getDifficulties = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const result = await getDifficultiesService();
+    return res.status(result.code).json(result.data);
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

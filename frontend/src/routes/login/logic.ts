@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import { getEmptyFieldErrorMessage } from '@/lib/forms';
-import { useMutation } from '@tanstack/react-query';
 import { login } from '@/services/user-service';
-import { useNavigate } from 'react-router-dom';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, getEmptyFieldErrorMessage('Username')),
@@ -29,6 +29,13 @@ export const useLoginForm = () => {
     mutationKey: ['login'],
     mutationFn: login,
     onSuccess: (_response, _params, _context) => {
+      const userID = _response?.data?.id;
+      if (userID) {
+        // TODO: Revalidate with is-authed User Svc EP and put as user
+        // details provider on each route request
+        localStorage.setItem('cachedUserID', userID);
+      }
+
       navigate(0);
     },
   });
