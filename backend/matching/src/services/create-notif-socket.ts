@@ -1,4 +1,5 @@
 export const createNotifSocket = (userId: string) => {
-  // TODO: Assign proper socket room
-  return userId;
+  const dateString = Date.now().toString(36);
+  const roomId = `${userId}_${dateString}`;
+  return roomId;
 };
