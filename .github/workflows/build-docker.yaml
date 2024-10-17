@@ -2,9 +2,6 @@ name: Build & publish PeerPrep images
 on:
   [push]
 
-env:
-  DOCKERHUB_USERNAME: ay2425s1cs3219g16
-
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -12,27 +9,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: $DOCKERHUB_USERNAME/user-express
+          - image: ay2425s1cs3219g16/user-express
             context: ./backend/user
             dockerfile: ./backend/user/express.Dockerfile
             build-args: |
               port=9001
-          - image: $DOCKERHUB_USERNAME/question-express
+          - image: ay2425s1cs3219g16/question-express
             context: ./backend/question
             dockerfile:  ./backend/question/express.Dockerfile
             build-args: |
               port=9002
-          - image: $DOCKERHUB_USERNAME/collab-express
+          - image: ay2425s1cs3219g16/collab-express
             context: ./backend/collaboration
             dockerfile:  ./backend/collaboration/express.Dockerfile
             build-args: |
               port=9003
-          - image: $DOCKERHUB_USERNAME/match-express
+          - image: ay2425s1cs3219g16/match-express
             context: ./backend/matching
             dockerfile:  ./backend/matching/express.Dockerfile
             build-args: |
               port=9004
-          - image: $DOCKERHUB_USERNAME/frontend
+          - image: ay2425s1cs3219g16/frontend
             context: ./frontend
             dockerfile:  ./frontend/frontend.Dockerfile
             build-args: |
