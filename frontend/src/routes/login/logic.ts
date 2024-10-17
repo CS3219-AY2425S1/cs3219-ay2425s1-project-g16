@@ -6,6 +6,7 @@ import { getEmptyFieldErrorMessage } from '@/lib/forms';
 import { useMutation } from '@tanstack/react-query';
 import { login } from '@/services/user-service';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export const loginFormSchema = z.object({
   username: z.string().min(1, getEmptyFieldErrorMessage('Username')),
@@ -30,6 +31,21 @@ export const useLoginForm = () => {
     mutationFn: login,
     onSuccess: (_response, _params, _context) => {
       navigate(0);
+    },
+    onError: (error: unknown) => {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          form.setError('username', {
+            type: 'manual',
+            message: '',
+          });
+          form.setError('password', {
+            type: 'manual',
+            message: 'Invalid username or password.',
+          });
+        }
+      }
     },
   });
 
