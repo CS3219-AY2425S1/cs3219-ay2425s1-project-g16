@@ -1,10 +1,17 @@
 name: Build & publish PeerPrep images
 on:
   pull_request:
-    types: [review_requested, ready_for_review]
+    # types: [review_requested, ready_for_review]
   push:
     branches: 
       - master
+
+env:
+  USER_EXPRESS_PORT: 9001
+  QUESTION_EXPRESS_PORT: 9002
+  COLLAB_EXPRESS_PORT: 9003
+  MATCH_EXPRESS_PORT: 9004
+  FRONTEND_PORT: 3000
 
 jobs:
   changes:
@@ -33,6 +40,7 @@ jobs:
             - 'frontend/**'
     - id: set-matrix
       run: |
+        echo "$USER_EXPRESS_PORT"
         # Create the matrix based on the filters
         matrix=()
         if [[ "${{ steps.filter.outputs.user }}" == "true" ]]; then
