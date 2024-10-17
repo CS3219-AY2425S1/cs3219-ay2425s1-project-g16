@@ -1,6 +1,9 @@
 name: Build & publish PeerPrep images
 on:
-  [push]
+  pull_request:
+  push:
+    branches: 
+      - master
 
 jobs:
   build-and-push-image:
