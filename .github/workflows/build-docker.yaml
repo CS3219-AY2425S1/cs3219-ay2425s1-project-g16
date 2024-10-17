@@ -74,7 +74,7 @@ jobs:
             dockerfile:  ./frontend/frontend.Dockerfile
             build-args: |
               port=3000
-    if: ${{ nQeeds.changes[matrix.package] == 'true' }}
+    if: ${{ needs.changes[matrix.package] == 'true' }}
     permissions:
       contents: read
       packages: write
