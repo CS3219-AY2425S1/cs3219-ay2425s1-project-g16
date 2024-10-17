@@ -12,27 +12,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: "$DOCKERHUB_USERNAME/user-express"
+          - image: $DOCKERHUB_USERNAME/user-express
             context: ./backend/user
             dockerfile: ./backend/user/express.Dockerfile
             build-args: |
               port=9001
-          - image: "$DOCKERHUB_USERNAME/question-express"
+          - image: $DOCKERHUB_USERNAME/question-express
             context: ./backend/question
             dockerfile:  ./backend/question/express.Dockerfile
             build-args: |
               port=9002
-          - image: "$DOCKERHUB_USERNAME/collab-express"
+          - image: $DOCKERHUB_USERNAME/collab-express
             context: ./backend/collaboration
             dockerfile:  ./backend/collaboration/express.Dockerfile
             build-args: |
               port=9003
-          - image: "$DOCKERHUB_USERNAME/match-express"
+          - image: $DOCKERHUB_USERNAME/match-express
             context: ./backend/matching
             dockerfile:  ./backend/matching/express.Dockerfile
             build-args: |
               port=9004
-          - image: "$DOCKERHUB_USERNAME/frontend"
+          - image: $DOCKERHUB_USERNAME/frontend
             context: ./frontend
             dockerfile:  ./frontend/frontend.Dockerfile
             build-args: |
