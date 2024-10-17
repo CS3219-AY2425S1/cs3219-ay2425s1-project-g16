@@ -81,7 +81,8 @@ jobs:
             "build-args": ["port=3000"]
           }')
         fi
-        echo "matrix=[${matrix[*]}]" >> $GITHUB_OUTPUT
+        formatted_matrix=$(echo "[${matrix[*]}]" | jq -c .)
+        echo "matrix=$formatted_matrix" >> $GITHUB_OUTPUT
 
   build-and-push-image:
     needs: changes

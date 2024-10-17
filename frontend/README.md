@@ -70,5 +70,3 @@ export default tseslint.config({
   },
 });
 ```
-
-## Test Section (To Be Completed)
