@@ -11,27 +11,27 @@ jobs:
         include:
           - image: user-express
             context: ./backend/user
-            dockerfile: express.Dockerfile
+            dockerfile: ./backend/user/express.Dockerfile
             build-args: |
               port=9001
           - image: question-express
             context: ./backend/question
-            dockerfile:  express.Dockerfile
+            dockerfile:  ./backend/question/express.Dockerfile
             build-args: |
               port=9002
           - image: collab-express
             context: ./backend/collaboration
-            dockerfile:  express.Dockerfile
+            dockerfile:  ./backend/collaboration/express.Dockerfile
             build-args: |
               port=9003
           - image: match-express
             context: ./backend/matching
-            dockerfile:  express.Dockerfile
+            dockerfile:  ./backend/matching/express.Dockerfile
             build-args: |
               port=9004
           - image: frontend
             context: ./frontend
-            dockerfile:  frontend.Dockerfile
+            dockerfile:  ./frontend/frontend.Dockerfile
             build-args: |
               port=3000
           
