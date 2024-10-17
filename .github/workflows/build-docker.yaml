@@ -39,9 +39,9 @@ jobs:
             - 'backend/matching/**'
           frontend:
             - 'frontend/**'
-    - id: set-matrix
+    - name: output-job-matrix
+      id: set-matrix
       run: |
-        # Create the matrix based on the filters
         matrix=()
         if [[ "${{ steps.filter.outputs.user }}" == "true" ]]; then
           matrix+=("{
