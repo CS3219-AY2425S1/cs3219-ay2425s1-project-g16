@@ -85,6 +85,7 @@ jobs:
 
   build-and-push-image:
     needs: changes
+    if: ${{ fromJson(needs.changes.outputs.matrix)[0] != null }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
