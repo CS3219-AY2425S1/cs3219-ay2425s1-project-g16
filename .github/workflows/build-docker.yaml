@@ -4,7 +4,7 @@ on:
     types: [review_requested, ready_for_review]
   push:
     branches: 
-      - master
+      - main
 
 env:
   DOCKER_REGISTRY_USN: ay2425s1cs3219g16
