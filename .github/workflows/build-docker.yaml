@@ -1,7 +1,7 @@
 name: Build & publish PeerPrep images
 on:
   pull_request:
-    types: [review_requested, ready_for_review]
+    # types: [review_requested, ready_for_review]
   push:
     branches: 
       - master
@@ -14,11 +14,7 @@ jobs:
       pull-requests: read
     # Set job outputs to values from filter step
     outputs:
-      user: ${{ steps.filter.outputs.user }}
-      question: ${{ steps.filter.outputs.question }}
-      collaboration: ${{ steps.filter.outputs.collaboration }}
-      matching: ${{ steps.filter.outputs.matching }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }} # Output the matrix as a JSON string
     steps:
     # For pull requests it's not necessary to checkout the code
     - uses: dorny/paths-filter@v3
@@ -35,6 +31,57 @@ jobs:
             - 'backend/matching/**'
           frontend:
             - 'frontend/**'
+    - id: set-matrix
+      run: |
+        # Create the matrix based on the filters
+        matrix=()
+        if [[ "${{ steps.filter.outputs.user }}" == "true" ]]; then
+          matrix+=('{
+            "package": "user", 
+            "image": "ay2425s1cs3219g16/user-express", 
+            "context": "./backend/user", 
+            "dockerfile": 
+            "./backend/user/express.Dockerfile", 
+            "build-args": "port=9001"
+          }')
+        fi
+        if [[ "${{ steps.filter.outputs.question }}" == "true" ]]; then
+          matrix+=('{
+            "package": "question", 
+            "image": "ay2425s1cs3219g16/question-express", 
+            "context": "./backend/question", 
+            "dockerfile": "./backend/question/express.Dockerfile", 
+            "build-args": ["port=9002"]
+          }')
+        fi
+        if [[ "${{ steps.filter.outputs.collaboration }}" == "true" ]]; then
+          matrix+=('{
+            "package": "collaboration", 
+            "image": "ay2425s1cs3219g16/collab-express", 
+            "context": "./backend/collaboration", 
+            "dockerfile": "./backend/collaboration/express.Dockerfile", 
+            "build-args": ["port=9003"]
+          }')
+        fi
+        if [[ "${{ steps.filter.outputs.matching }}" == "true" ]]; then
+          matrix+=('{
+            "package": "matching", 
+            "image": "ay2425s1cs3219g16/match-express", 
+            "context": "./backend/matching", 
+            "dockerfile": "./backend/matching/express.Dockerfile", 
+            "build-args": ["port=9004"]
+          }')
+        fi
+        if [[ "${{ steps.filter.outputs.frontend }}" == "true" ]]; then
+          matrix+=('{
+            "package": "frontend", 
+            "image": "ay2425s1cs3219g16/frontend", 
+            "context": "./frontend", 
+            "dockerfile": "./frontend/frontend.Dockerfile", 
+            "build-args": ["port=3000"]
+          }')
+        fi
+        echo "matrix=[${matrix[*]}]" >> $GITHUB_OUTPUT
 
   build-and-push-image:
     needs: changes
@@ -42,37 +89,37 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - package: user
-            image: ay2425s1cs3219g16/user-express
-            context: ./backend/user
-            dockerfile: ./backend/user/express.Dockerfile
-            build-args: |
-              port=9001
-          - package: question
-            image: ay2425s1cs3219g16/question-express
-            context: ./backend/question
-            dockerfile:  ./backend/question/express.Dockerfile
-            build-args: |
-              port=9002
-          - package: collaboration
-            image: ay2425s1cs3219g16/collab-express
-            context: ./backend/collaboration
-            dockerfile:  ./backend/collaboration/express.Dockerfile
-            build-args: |
-              port=9003
-          - package: matching
-            image: ay2425s1cs3219g16/match-express
-            context: ./backend/matching
-            dockerfile:  ./backend/matching/express.Dockerfile
-            build-args: |
-              port=9004
-          - package: frontend
-            image: ay2425s1cs3219g16/frontend
-            context: ./frontend
-            dockerfile:  ./frontend/frontend.Dockerfile
-            build-args: |
-              port=3000
+        include: ${{ fromJson(needs.changes.outputs.matrix) }} # Use the matrix from the first job
+          # - package: user
+          #   image: ay2425s1cs3219g16/user-express
+          #   context: ./backend/user
+          #   dockerfile: ./backend/user/express.Dockerfile
+          #   build-args: |
+          #     port=9001
+          # - package: question
+          #   image: ay2425s1cs3219g16/question-express
+          #   context: ./backend/question
+          #   dockerfile:  ./backend/question/express.Dockerfile
+          #   build-args: |
+          #     port=9002
+          # - package: collaboration
+          #   image: ay2425s1cs3219g16/collab-express
+          #   context: ./backend/collaboration
+          #   dockerfile:  ./backend/collaboration/express.Dockerfile
+          #   build-args: |
+          #     port=9003
+          # - package: matching
+          #   image: ay2425s1cs3219g16/match-express
+          #   context: ./backend/matching
+          #   dockerfile:  ./backend/matching/express.Dockerfile
+          #   build-args: |
+          #     port=9004
+          # - package: frontend
+          #   image: ay2425s1cs3219g16/frontend
+          #   context: ./frontend
+          #   dockerfile:  ./frontend/frontend.Dockerfile
+          #   build-args: |
+          #     port=3000
     permissions:
       contents: read
       packages: write
