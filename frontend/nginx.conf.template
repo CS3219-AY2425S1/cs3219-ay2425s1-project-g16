@@ -1,0 +1,30 @@
+server {
+    listen ${FRONTEND_PORT};
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /user-service/ {
+        rewrite ^/user-service(/.*)$ $1 break;
+        proxy_pass ${VITE_USER_SERVICE};
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /question-service/ {
+        rewrite ^/question-service(/.*)$ $1 break;
+        proxy_pass ${VITE_QUESTION_SERVICE};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+}
