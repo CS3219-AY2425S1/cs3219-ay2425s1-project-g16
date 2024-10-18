@@ -3,6 +3,7 @@ import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/c
 import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
 import { MATCH_SVC_EVENT } from '@/ws';
+import { IMatchType } from '@/types';
 
 import { connectClient, sendNotif } from './common';
 
@@ -41,7 +42,9 @@ async function processMatch(
   redisClient: typeof client,
   { requestorUserId, requestorStreamId, requestorSocketPort }: RequestorParams,
   matches: Awaited<ReturnType<(typeof client)['ft']['search']>>,
-  searchIdentifier?: string
+  searchIdentifier?: IMatchType,
+  topic?: string,
+  difficulty?: string
 ) {
   if (matches.total > 0) {
     for (const matched of matches.documents) {
@@ -61,6 +64,7 @@ async function processMatch(
       const matchedStreamId = getStreamId(timestamp);
 
       logger.info(`Found match: ${JSON.stringify(matched)}`);
+      
 
       await Promise.all([
         // Remove other from pool
@@ -70,7 +74,7 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems();
+      const { ...matchItems } = getMatchItems(searchIdentifier, topic, difficulty, requestorUserId, matchedUserId);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
       sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
 
@@ -142,7 +146,9 @@ async function match() {
         redisClient,
         requestorParams,
         exactMatches,
-        'exact match'
+        'exact match',
+        topic,
+        difficulty
       );
 
       if (exactMatchFound || !topic || !difficulty) {
@@ -160,7 +166,9 @@ async function match() {
         redisClient,
         requestorParams,
         topicMatches,
-        'topic'
+        'topic',
+        topic,
+        difficulty
       );
 
       if (topicMatchFound) {
@@ -177,7 +185,9 @@ async function match() {
         redisClient,
         requestorParams,
         difficultyMatches,
-        'difficulty'
+        'difficulty',
+        topic,
+        difficulty
       );
 
       if (!hasDifficultyMatch) {

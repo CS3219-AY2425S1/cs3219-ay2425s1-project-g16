@@ -28,3 +28,5 @@ export type IStreamMessage = {
   };
   value?: Awaited<ReturnType<(typeof client)['ft']['search']>>['documents'][number]['value'];
 };
+
+export type IMatchType = 'difficulty' | 'topic' | 'exact match' | undefined
