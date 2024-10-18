@@ -33,8 +33,7 @@ export const matchRequestController = async (req: Request, res: Response) => {
     })
     .end();
 
-  // TODO: Wait for user to connect to notif socket, or add a time buffer
-
+  // Added time buffer for matcher worker, but may be insufficient (especially if <1s is left)
   await queueingService(redisClient, {
     userId,
     difficulty,

@@ -1,11 +1,11 @@
-import * as Y from 'yjs';
-import * as syncProtocol from 'y-protocols/sync';
-import * as awarenessProtocol from 'y-protocols/awareness';
-
 import * as encoding from 'lib0/encoding';
+import * as awarenessProtocol from 'y-protocols/awareness';
+import * as syncProtocol from 'y-protocols/sync';
+import * as Y from 'yjs';
 
-import type { IWSSharedDoc } from '@/types/interfaces';
 import { GC_ENABLED } from '@/config';
+import type { IWSSharedDoc } from '@/types/interfaces';
+
 import { messageAwareness, messageSync } from './constants';
 import { send } from './utils';
 
@@ -44,8 +44,10 @@ export class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
       conn: object | null
     ) => {
       const changedClients = added.concat(updated, removed);
+
       if (conn !== null) {
         const connControlledIDs = /** @type {Set<number>} */ this.conns.get(conn);
+
         if (connControlledIDs !== undefined) {
           added.forEach((clientID) => {
             connControlledIDs.add(clientID);
@@ -55,6 +57,7 @@ export class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
           });
         }
       }
+
       // broadcast awareness update
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, messageAwareness);
@@ -67,6 +70,7 @@ export class WSSharedDoc extends Y.Doc implements IWSSharedDoc {
         send(this, c, buff);
       });
     };
+
     this.awareness.on('update', awarenessChangeHandler);
     this.on('update', updateHandler);
   }

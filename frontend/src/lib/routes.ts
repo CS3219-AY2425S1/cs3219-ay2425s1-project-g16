@@ -6,6 +6,8 @@ export const ROUTES = {
   HOME: '/',
   QUESTIONS: '/questions',
   QUESTION_DETAILS: '/questions/:questionId',
+  MATCH: '/match',
+  COLLAB: '/collab/:roomId',
 };
 
 const TOP_LEVEL_AUTHED_ROUTES = {
@@ -13,6 +15,18 @@ const TOP_LEVEL_AUTHED_ROUTES = {
     {
       path: ROUTES.QUESTIONS,
       title: 'Questions',
+    },
+  ],
+  [ROUTES.MATCH]: [
+    {
+      path: ROUTES.MATCH,
+      title: 'Start Match',
+    },
+  ],
+  [ROUTES.COLLAB]: [
+    {
+      path: ROUTES.COLLAB,
+      title: 'Collab',
     },
   ],
 };
@@ -46,6 +60,8 @@ const TITLES: Record<string, string> = {
   [ROUTES.FORGOT_PASSWORD]: 'Forgot Password',
   [ROUTES.HOME]: 'Peerprep',
   [ROUTES.QUESTIONS]: 'Browse Questions',
+  [ROUTES.MATCH]: 'Match With A Partner',
+  [ROUTES.COLLAB]: 'Collaborate',
 };
 
 export const getPageTitle = (path: string) => {

@@ -1,9 +1,8 @@
-import * as awarenessProtocol from 'y-protocols/awareness';
-import * as syncProtocol from 'y-protocols/sync';
-
 import * as decoding from 'lib0/decoding';
 import * as encoding from 'lib0/encoding';
 import * as map from 'lib0/map';
+import * as awarenessProtocol from 'y-protocols/awareness';
+import * as syncProtocol from 'y-protocols/sync';
 
 import type { IPersistence, IWSSharedDoc } from '@/types/interfaces';
 
@@ -38,9 +37,11 @@ export const getYDoc = (docname: string, gc = true) =>
   map.setIfUndefined(docs, docname, () => {
     const doc = new WSSharedDoc(docname);
     doc.gc = gc;
+
     if (persistence !== null) {
       persistence.bindState(docname, doc);
     }
+
     docs.set(docname, doc);
     return doc;
   });
@@ -50,6 +51,7 @@ const messageListener = (conn: any, doc: IWSSharedDoc, message: Uint8Array) => {
     const encoder = encoding.createEncoder();
     const decoder = decoding.createDecoder(message);
     const messageType = decoding.readVarUint(decoder);
+
     switch (messageType) {
       case messageSync:
         encoding.writeVarUint(encoder, messageSync);
@@ -61,7 +63,9 @@ const messageListener = (conn: any, doc: IWSSharedDoc, message: Uint8Array) => {
         if (encoding.length(encoder) > 1) {
           send(doc, conn, encoding.toUint8Array(encoder));
         }
+
         break;
+
       case messageAwareness: {
         awarenessProtocol.applyAwarenessUpdate(
           doc.awareness,
@@ -80,9 +84,11 @@ const closeConn = (doc: IWSSharedDoc, conn: any) => {
   if (doc.conns.has(conn)) {
     const controlledIds = doc.conns.get(conn);
     doc.conns.delete(conn);
+
     if (controlledIds) {
       awarenessProtocol.removeAwarenessStates(doc.awareness, Array.from(controlledIds), null);
     }
+
     if (doc.conns.size === 0 && persistence !== null) {
       // if persisted, we store state and destroy ydocument
       persistence.writeState(doc.name, doc).then(() => {
@@ -91,6 +97,7 @@ const closeConn = (doc: IWSSharedDoc, conn: any) => {
       docs.delete(doc.name);
     }
   }
+
   conn.close();
 };
 
@@ -98,6 +105,7 @@ export const send = (doc: IWSSharedDoc, conn: any, m: Uint8Array) => {
   if (conn.readyState !== wsReadyStateConnecting && conn.readyState !== wsReadyStateOpen) {
     closeConn(doc, conn);
   }
+
   try {
     conn.send(m, (err: any) => {
       if (err !== null) {
@@ -128,9 +136,11 @@ export const setupWSConnection = (
       if (doc.conns.has(conn)) {
         closeConn(doc, conn);
       }
+
       clearInterval(pingInterval);
     } else if (doc.conns.has(conn)) {
       pongReceived = false;
+
       try {
         conn.ping();
       } catch (e) {
@@ -146,6 +156,7 @@ export const setupWSConnection = (
   conn.on('pong', () => {
     pongReceived = true;
   });
+
   // put the following in a variables in a block so the interval handlers don't keep in in
   // scope
   {
@@ -155,6 +166,7 @@ export const setupWSConnection = (
     syncProtocol.writeSyncStep1(encoder, doc);
     send(doc, conn, encoding.toUint8Array(encoder));
     const awarenessStates = doc.awareness.getStates();
+
     if (awarenessStates.size > 0) {
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, messageAwareness);

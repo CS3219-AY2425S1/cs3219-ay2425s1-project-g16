@@ -1,5 +1,6 @@
-import { getCollabRoom } from '@/controller/collab-controller';
 import express from 'express';
+
+import { getCollabRoom } from '@/controller/collab-controller';
 
 const router = express.Router();
 

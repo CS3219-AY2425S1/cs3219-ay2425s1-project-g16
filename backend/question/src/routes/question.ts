@@ -3,9 +3,11 @@ import { Router } from 'express';
 import {
   createQuestion,
   deleteQuestion,
+  getDifficulties,
   getQuestionDetails,
   getQuestions,
   getRandomQuestion,
+  getTopics,
   searchQuestionsByTitle,
   updateQuestion,
 } from '@/controller/question-controller';
@@ -13,6 +15,9 @@ import {
 const router = Router();
 
 router.get('/search', searchQuestionsByTitle);
+
+router.get('/topics', getTopics);
+router.get('/difficulties', getDifficulties);
 
 router.get('/', getQuestions);
 

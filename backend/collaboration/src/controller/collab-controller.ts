@@ -11,13 +11,16 @@ export async function getCollabRoom(req: Request, res: Response) {
     userid2: userid2 as string,
     questionid: questionid as string,
   };
+
   try {
     const result = await getCollabRoomService(payload);
+
     if (result.error) {
       return res.status(result.code).json({
         error: result.error.message ?? 'An error occurred',
       });
     }
+
     return res.status(result.code).json(result.data);
   } catch (err) {
     return res

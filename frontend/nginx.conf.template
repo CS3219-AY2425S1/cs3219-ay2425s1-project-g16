@@ -1,3 +1,8 @@
+map $http_upgrade $connection_upgrade {
+default upgrade;
+''      close;
+}
+
 server {
     listen ${FRONTEND_PORT};
     location / {
@@ -19,6 +24,26 @@ server {
     location /question-service/ {
         rewrite ^/question-service(/.*)$ $1 break;
         proxy_pass ${VITE_QUESTION_SERVICE};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /matching-service/ {
+        rewrite ^/matching-service(/.*)$ $1 break;
+        proxy_pass ${VITE_MATCHING_SERVICE};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /matching-socket/ {
+        proxy_pass ${VITE_MATCHING_SERVICE};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

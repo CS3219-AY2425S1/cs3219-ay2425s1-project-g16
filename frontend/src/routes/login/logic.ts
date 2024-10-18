@@ -29,6 +29,14 @@ export const useLoginForm = () => {
     mutationKey: ['login'],
     mutationFn: login,
     onSuccess: (_response, _params, _context) => {
+      const userID = _response?.data?.id;
+
+      if (userID) {
+        // TODO: Revalidate with is-authed User Svc EP and put as user
+        // details provider on each route request
+        localStorage.setItem('cachedUserID', userID);
+      }
+
       navigate(0);
     },
   });

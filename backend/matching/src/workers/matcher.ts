@@ -11,7 +11,7 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 5000;
+const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -70,10 +70,18 @@ async function processMatch(
       ]);
 
       // Notify both sockets
-      const { ...matchItems } = getMatchItems();
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
-      sendNotif([requestorSocketPort, matchedSocketPort], MATCH_SVC_EVENT.DISCONNECT);
+      const { ...matchItems } = getMatchItems({ userId1: requestorUserId, userId2: matchedUserId });
 
+      const sendMatchLogic = (socketPort: string) => {
+        sendNotif([socketPort], MATCH_SVC_EVENT.SUCCESS, matchItems);
+        sendNotif([socketPort], MATCH_SVC_EVENT.DISCONNECT);
+      };
+
+      // TODO: If client disconnected, stop sending to requestor
+      sendMatchLogic(matchedSocketPort);
+      setTimeout(() => {
+        sendMatchLogic(requestorSocketPort);
+      }, 1000);
       await logQueueStatus(logger, redisClient, `Queue Status After Matching: <PLACEHOLDER>`);
       return true;
     }
