@@ -88,60 +88,63 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
 
     socket.on(WS_EVENT.CONNECT, () => {
       console.log('Connected to server');
-      socket.emit(WS_EVENT.JOIN_ROOM, socketPort);
-      socket.emit(WS_EVENT.START_QUEUING, {
-        roomId: socketPort,
-        userId: getUserId(),
-        topic: values?.selectedTopics,
-        difficulty: values?.difficulty,
-      });
-      socket.on(MATCHING_EVENT.QUEUED, () => {
-        setUIState((prevState) => ({ ...prevState, connected: true }));
-      });
+    });
 
-      socket.on(WS_EVENT.MESSAGE, (data) => {
-        console.log('Message from server:', data);
-      });
+    socket.emit(WS_EVENT.JOIN_ROOM, socketPort);
 
-      socket.on(MATCHING_EVENT.MATCHING, () => {
-        console.log('Matching in progress');
-        setUIState((prev) => ({ ...prev, canCancel: false }));
-      });
+    socket.emit(WS_EVENT.START_QUEUING, {
+      roomId: socketPort,
+      userId: getUserId(),
+      topic: values?.selectedTopics,
+      difficulty: values?.difficulty,
+    });
 
-      socket.on(MATCHING_EVENT.PENDING, () => {
-        console.log('Waiting in pool');
-        setUIState((prev) => ({ ...prev, canCancel: true }));
-      });
+    socket.on(MATCHING_EVENT.QUEUED, () => {
+      setUIState((prevState) => ({ ...prevState, connected: true }));
+    });
 
-      socket.on(MATCHING_EVENT.SUCCESS, (data) => {
-        console.log(`Received match: ${JSON.stringify(data)}`);
+    socket.on(WS_EVENT.MESSAGE, (data) => {
+      console.log('Message from server:', data);
+    });
 
-        const roomId = data?.roomId;
-        const questionId = data?.questionId;
-        countdownRef.current = 0;
-        clearInterval(timerRef.current!);
+    socket.on(MATCHING_EVENT.MATCHING, () => {
+      console.log('Matching in progress');
+      setUIState((prev) => ({ ...prev, canCancel: false }));
+    });
 
-        setUIState((prevState) => ({ ...prevState, uiState: UI_STATUS.SUCCESS_STATUS }));
-        updateDescription(`RoomId: ${roomId}\nQuestionId: ${questionId} `);
-        socket.close();
-      });
+    socket.on(MATCHING_EVENT.PENDING, () => {
+      console.log('Waiting in pool');
+      setUIState((prev) => ({ ...prev, canCancel: true }));
+    });
 
-      socket.on(MATCHING_EVENT.FAILED, () => {
-        countdownRef.current = 0;
-        setUIState((prevState) => ({ ...prevState, uiState: UI_STATUS.FAILED_STATUS }));
-      });
+    socket.on(MATCHING_EVENT.SUCCESS, (data) => {
+      console.log(`Received match: ${JSON.stringify(data)}`);
 
-      socket.on(MATCHING_EVENT.ERROR, (errorMessage: string) => {
-        countdownRef.current = 0;
-        setUIState((prevState) => ({
-          ...prevState,
-          uiState: { ...UI_STATUS.FAILED_STATUS, description: errorMessage },
-        }));
-      });
+      const roomId = data?.roomId;
+      const questionId = data?.questionId;
+      countdownRef.current = 0;
+      clearInterval(timerRef.current!);
 
-      socket.on(MATCHING_EVENT.DISCONNECT, () => {
-        socket.close();
-      });
+      setUIState((prevState) => ({ ...prevState, uiState: UI_STATUS.SUCCESS_STATUS }));
+      updateDescription(`RoomId: ${roomId}\nQuestionId: ${questionId} `);
+      socket.close();
+    });
+
+    socket.on(MATCHING_EVENT.FAILED, () => {
+      countdownRef.current = 0;
+      setUIState((prevState) => ({ ...prevState, uiState: UI_STATUS.FAILED_STATUS }));
+    });
+
+    socket.on(MATCHING_EVENT.ERROR, (errorMessage: string) => {
+      countdownRef.current = 0;
+      setUIState((prevState) => ({
+        ...prevState,
+        uiState: { ...UI_STATUS.FAILED_STATUS, description: errorMessage },
+      }));
+    });
+
+    socket.on(MATCHING_EVENT.DISCONNECT, () => {
+      socket.close();
     });
 
     return () => {
@@ -170,7 +173,24 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
       <h1 className='mb-4 text-3xl'>{uiState.header}</h1>
       <div className='flex flex-col items-center justify-center'>
         {uiState.icon}
-        <p className='mt-4 whitespace-pre-wrap text-lg'>{uiState.description}</p>
+        {uiState.description.startsWith('RoomId') ? (
+          <p className='flex flex-col gap-1'>
+            <div className='flex flex-col gap-0'>
+              <label className='text-lg'>Room Id:</label>
+              <span className='text-md max-w-[400px] truncate text-balance font-mono'>
+                {uiState.description.split('\nQuestionId: ')[0].replace('RoomId:', '')}
+              </span>
+            </div>
+            <div className='flex flex-col'>
+              <label className='text-lg'>Question Id:</label>
+              <span className='font-mono text-lg'>
+                {uiState.description.split('\nQuestionId: ')[1]}
+              </span>
+            </div>
+          </p>
+        ) : (
+          <p className='mt-4 whitespace-pre-wrap text-lg'>{uiState.description}</p>
+        )}
       </div>
       {countdownRef.current > 0 || isCancelling ? (
         <Button
@@ -182,7 +202,14 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
           Cancel
         </Button>
       ) : (
-        <Button className='mt-5' variant='outline' onClick={() => setIsModalOpen(false)}>
+        <Button
+          className='mt-5'
+          variant='outline'
+          onClick={() => {
+            setIsModalOpen(false);
+            // form?.reset()
+          }}
+        >
           Back
         </Button>
       )}

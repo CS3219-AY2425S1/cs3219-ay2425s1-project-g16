@@ -29,6 +29,8 @@ interface MatchFormProps {
   topics: string[];
 }
 
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
+
 export const MatchForm = ({ topics }: MatchFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -105,9 +107,11 @@ export const MatchForm = ({ topics }: MatchFormProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='easy'>Easy</SelectItem>
-                        <SelectItem value='medium'>Medium</SelectItem>
-                        <SelectItem value='hard'>Hard</SelectItem>
+                        {DIFFICULTIES.map((value, index) => (
+                          <SelectItem key={index} value={value}>
+                            {value}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -198,6 +198,7 @@ services:
     networks:
       - match-db-network
       - match-api-network
+      - user-api-network
       - question-api-network
       - collab-api-network
     healthcheck:

@@ -45,20 +45,20 @@ export interface IServiceResponse<T> {
 
 export interface IQuestion {
   id: number;
-  title: string;
-  description: string;
-  difficulty: string;
-  topic: string[];
+  // title: string;
+  // description: string;
+  // difficulty: string;
+  // topic: string[];
 }
 
 export interface IGetRandomQuestionPayload {
   attemptedQuestions: number[];
   difficulty?: string;
-  topic?: string;
+  topic?: Array<string>;
 }
 
 export interface IMatchItemsResponse {
-  roomName: string;
+  roomId: string;
   questionId: number;
-  question: IQuestion;
+  // question: IQuestion;
 }

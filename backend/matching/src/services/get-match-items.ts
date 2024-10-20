@@ -1,4 +1,5 @@
-import { IMatchItemsResponse, IMatchType } from '../types/index';
+import type { IMatchItemsResponse, IMatchType } from '@/types';
+
 import { createRoom } from './collab';
 import { getRandomQuestion } from './question';
 import { fetchAttemptedQuestions } from './user';
@@ -21,24 +22,26 @@ export async function getMatchItems(
     ]);
 
     const allAttemptedQuestions = [...new Set([...attemptedQuestions1, ...attemptedQuestions2])];
-
+    const topics = topic?.split('|') ?? [];
     const payload = {
       attemptedQuestions: allAttemptedQuestions,
       ...(searchIdentifier === 'difficulty' && difficulty ? { difficulty } : {}),
-      ...(searchIdentifier === 'topic' && topic ? { topic } : {}),
-      ...(searchIdentifier === 'exact match' && topic && difficulty ? { topic, difficulty } : {}),
+      ...(searchIdentifier === 'topic' && topic ? { topic: topics } : {}),
+      ...(searchIdentifier === 'exact match' && topic && difficulty
+        ? { topic: topics, difficulty }
+        : {}),
     };
 
     // Get a random question
     const question = await getRandomQuestion(payload);
 
-    const roomName = await createRoom(userId1, userId2, question.id.toString());
+    const roomId = await createRoom(userId1, userId2, question.id.toString());
 
     console.log('Successfully got match items');
     return {
-      roomName,
+      roomId,
       questionId: question.id,
-      question,
+      // question,
     };
   } catch (error) {
     console.error('Error in getMatchItems:', error);
