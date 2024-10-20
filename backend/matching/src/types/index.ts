@@ -20,15 +20,6 @@ export type IPoolTicket = IQueueRequest;
 
 export type IRedisClient = typeof client;
 
-export type IStreamMessage = {
-  id: string;
-  message?: {
-    // Stream
-    [x: string]: string;
-  };
-  value?: Awaited<ReturnType<(typeof client)['ft']['search']>>['documents'][number]['value'];
-};
-
 export type IMatchType = 'difficulty' | 'topic' | 'exact match' | undefined;
 
 export interface IServiceResponse<T> {

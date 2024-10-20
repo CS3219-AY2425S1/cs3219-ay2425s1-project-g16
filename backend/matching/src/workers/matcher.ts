@@ -1,11 +1,11 @@
-import { client, logQueueStatus } from '@/lib/db';
+import { client as redisClient, logQueueStatus } from '@/lib/db';
 import { POOL_INDEX, STREAM_GROUP, STREAM_NAME, STREAM_WORKER } from '@/lib/db/constants';
-import { decodePoolTicket, getPoolKey, getStreamId } from '@/lib/utils';
+import { decodePoolTicket, decodeStreamTicket, getPoolKey, getStreamId } from '@/lib/utils';
 import { getMatchItems } from '@/services';
-import { IMatchType } from '@/types';
+import { IMatchType, IRedisClient } from '@/types';
 import { MATCH_SVC_EVENT } from '@/ws';
 
-import { connectClient, sendNotif } from './common';
+import { sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -23,9 +23,8 @@ const cancel = () => {
 
 const shutdown = () => {
   cancel();
-  client.disconnect().then(() => {
-    process.exit(0);
-  });
+  redisClient.disconnect();
+  process.exit(0);
 };
 
 process.on('SIGINT', shutdown);
@@ -39,15 +38,23 @@ type RequestorParams = {
 };
 
 async function processMatch(
-  redisClient: typeof client,
+  redisClient: IRedisClient,
   { requestorUserId, requestorStreamId, requestorSocketPort }: RequestorParams,
-  matches: Awaited<ReturnType<(typeof client)['ft']['search']>>,
+  matches: unknown, // [nResult, id, [doc], ...]
   searchIdentifier?: IMatchType,
   topic?: string,
   difficulty?: string
 ) {
-  if (matches.total > 0) {
-    for (const matched of matches.documents) {
+  if (!matches || !Array.isArray(matches) || matches.length === 0) {
+    logger.error(`Received invalid shape for matches: ${JSON.stringify(matches)}`);
+    return false;
+  }
+
+  const [nMatches, ...rest] = matches;
+
+  if (nMatches > 0) {
+    for (let i = 1; i < rest.length; i = i + 1) {
+      const matched = rest[i]; // [key, value, ...]
       const {
         userId: matchedUserId,
         timestamp, // We use timestamp as the Stream ID
@@ -69,7 +76,7 @@ async function processMatch(
         // Remove other from pool
         redisClient.del([getPoolKey(requestorUserId), getPoolKey(matchedUserId)]),
         // Remove other from queue
-        redisClient.xDel(STREAM_NAME, [requestorStreamId, matchedStreamId]),
+        redisClient.xdel(STREAM_NAME, requestorStreamId, matchedStreamId),
       ]);
 
       // Notify both sockets
@@ -95,19 +102,13 @@ async function processMatch(
 }
 
 async function match() {
-  const redisClient = await connectClient(client);
-
-  const stream = await redisClient.xReadGroup(
+  const stream = await redisClient.xreadgroup(
+    'GROUP',
     STREAM_GROUP,
     STREAM_WORKER,
-    {
-      key: STREAM_NAME,
-      id: '>',
-    },
-    {
-      COUNT: 1,
-      BLOCK: 2000,
-    }
+    'STREAMS',
+    STREAM_NAME,
+    '>'
   );
 
   if (!stream || stream.length === 0) {
@@ -118,21 +119,34 @@ async function match() {
   }
 
   for (const group of stream) {
+    // [GROUP_NAME, [[id, [...document]]] ]
+    if (!group || !Array.isArray(group) || group.length < 2) {
+      continue;
+    }
+
+    const [_groupName, messages] = group;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      continue;
+    }
+
+    const matchRequests = messages as Array<[id: string, items: Array<string>]>;
+
     // Perform matching
-    for (const matchRequest of group.messages) {
+    for (const matchRequest of matchRequests) {
       logger.info(`Received request: ${JSON.stringify(matchRequest)}`);
-      // Query the pool
       const {
         id: requestorStreamId,
         userId: requestorUserId,
         socketPort: requestorSocketPort,
         difficulty,
         topic,
-      } = decodePoolTicket(matchRequest);
+      } = decodeStreamTicket(...matchRequest);
 
       // To Block Cancellation
       sendNotif([requestorSocketPort], MATCH_SVC_EVENT.MATCHING);
 
+      // Build query to query the pool
       const clause = [`-@userId:(${requestorUserId})`];
 
       if (difficulty) {
@@ -143,13 +157,18 @@ async function match() {
         clause.push(`@topic:{${topic}}`);
       }
 
-      const searchParams = {
-        LIMIT: { from: 0, size: 1 },
-        SORTBY: { BY: 'timestamp', DIRECTION: 'ASC' },
-      } as const;
+      const searchParams = [
+        ['LIMIT', '0', '1'],
+        ['SORTBY', 'timestamp', 'ASC'],
+      ].flatMap((v) => v);
       const requestorParams = { requestorUserId, requestorStreamId, requestorSocketPort };
 
-      const exactMatches = await redisClient.ft.search(POOL_INDEX, clause.join(' '), searchParams);
+      const exactMatches = await redisClient.call(
+        'FT.SEARCH',
+        POOL_INDEX,
+        clause.join(' '),
+        ...searchParams
+      );
       const exactMatchFound = await processMatch(
         redisClient,
         requestorParams,
@@ -165,10 +184,11 @@ async function match() {
       }
 
       // Match on Topic
-      const topicMatches = await redisClient.ft.search(
+      const topicMatches = await redisClient.call(
+        'FT.SEARCH',
         POOL_INDEX,
         `@topic:{${topic}} -@userId:(${requestorUserId})`,
-        searchParams
+        ...searchParams
       );
       const topicMatchFound = await processMatch(
         redisClient,
@@ -184,10 +204,11 @@ async function match() {
       }
 
       // Match on Difficulty
-      const difficultyMatches = await redisClient.ft.search(
+      const difficultyMatches = await redisClient.call(
+        'FT.SEARCH',
         POOL_INDEX,
         `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
-        searchParams
+        ...searchParams
       );
       const hasDifficultyMatch = await processMatch(
         redisClient,

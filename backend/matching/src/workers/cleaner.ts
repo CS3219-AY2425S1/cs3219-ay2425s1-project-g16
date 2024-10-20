@@ -1,9 +1,9 @@
-import { client, logQueueStatus } from '@/lib/db';
+import { client as redisClient,logQueueStatus } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
-import { decodePoolTicket, getPoolKey } from '@/lib/utils';
+import { decodeStreamTicket, getPoolKey } from '@/lib/utils';
 import { MATCH_SVC_EVENT } from '@/ws';
 
-import { connectClient, sendNotif } from './common';
+import { sendNotif } from './common';
 
 const logger = {
   info: (message: unknown) => process.send && process.send(message),
@@ -21,9 +21,8 @@ const cancel = () => {
 
 const shutdown = () => {
   cancel();
-  client.disconnect().then(() => {
-    process.exit(0);
-  });
+  redisClient.disconnect();
+  process.exit(0);
 };
 
 process.on('SIGINT', shutdown);
@@ -31,8 +30,7 @@ process.on('SIGTERM', shutdown);
 process.on('exit', shutdown);
 
 async function clean() {
-  const redisClient = await connectClient(client);
-  const response = await redisClient.xAutoClaim(
+  const response = await redisClient.xautoclaim(
     STREAM_NAME,
     STREAM_GROUP,
     STREAM_CLEANER,
@@ -40,27 +38,44 @@ async function clean() {
     '0-0'
   );
 
-  if (!response || response.messages.length === 0) {
+  // [startId, [id, [...items]][], []]
+  if (
+    !response || // Invalid shape
+    !Array.isArray(response) || // Invalid shape
+    response.length < 3 || // Invalid shape
+    !Array.isArray(response[1]) || // Invalid shape
+    response[1].length === 0 // No messages to autoclaim
+  ) {
     await new Promise((resolve, _reject) => {
       timeout = setTimeout(() => resolve('Next Loop'), sleepTime);
     });
     return;
   }
 
+  const [_startId, messages, ..._rest] = response;
+
   // ACK, Delete
-  for (const message of response.messages) {
-    if (!message) {
+  // [ID, [..doc]]
+  for (const message of messages) {
+    if (
+      !message ||
+      !Array.isArray(message) ||
+      message.length < 2 ||
+      !message[1] ||
+      !Array.isArray(message[1])
+    ) {
       continue;
     }
 
+    const [id, ...doc] = message;
     logger.info(`Expiring ${JSON.stringify(message)}`);
-    const { userId, socketPort: socketRoom } = decodePoolTicket(message);
+    const { userId, socketPort: socketRoom } = decodeStreamTicket(id, doc);
     const POOL_KEY = getPoolKey(userId);
     await Promise.all([
       // Delete from pool
       redisClient.del(POOL_KEY),
       // ACK
-      redisClient.xDel(STREAM_NAME, message.id),
+      redisClient.xdel(STREAM_NAME, id),
     ]);
 
     if (socketRoom) {

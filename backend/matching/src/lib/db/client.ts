@@ -1,4 +1,3 @@
-// import { createClient } from 'redis';
 import Redis from 'ioredis';
 
 import { DB_HOSTNAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from '@/config';
