@@ -25,7 +25,7 @@ export const addAttemptedQuestionService = async (
     const userRecords = await db
       .select({ id: users.id, attemptedQuestions: users.attemptedQuestions })
       .from(users)
-      .where(sql`${users.username} = ANY(${userIds})`);
+      .where(sql`${users.id} = ANY(${userIds})`);
 
     if (userRecords.length === 0) {
       return {
@@ -72,7 +72,7 @@ export const getAttemptedQuestionsService = async (
     const result = await db
       .select({ attemptedQuestions: users.attemptedQuestions })
       .from(users)
-      .where(eq(users.username, userId))
+      .where(eq(users.id, userId))
       .limit(1);
 
     if (result.length === 0) {
