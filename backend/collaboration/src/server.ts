@@ -1,7 +1,7 @@
+import http from 'http';
 import { exit } from 'process';
 
 import cors from 'cors';
-import http from 'http';
 import express, { json } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
@@ -10,6 +10,7 @@ import { UI_HOST } from '@/config';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import roomRoutes from '@/routes/room';
+
 import { setUpWSServer } from './ws';
 
 const app = express();

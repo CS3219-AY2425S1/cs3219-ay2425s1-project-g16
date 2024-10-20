@@ -1,20 +1,17 @@
-import type { IGetQuestionsResponse } from '@/types/question-types';
+import type {
+  IGetDifficultiesResponse,
+  IGetQuestionDetailsResponse,
+  IGetQuestionsResponse,
+  IGetTopicsResponse,
+} from '@/types/question-types';
 
 import { questionApiClient } from './api-clients';
 
 const QUESTION_SERVICE_ROUTES = {
   GET_QUESTIONS: '/questions',
   GET_QUESTION_DETAILS: '/questions/<questionId>',
-};
-
-type IGetQuestionDetailsResponse = {
-  question: {
-    title: string;
-    description: string;
-    topic: Array<string>;
-    difficulty: string;
-    id?: string;
-  };
+  GET_TOPICS: '/questions/topics',
+  GET_DIFFICULTIES: '/questions/difficulties',
 };
 
 export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {
@@ -48,3 +45,15 @@ export async function fetchQuestions(pageNum: number = 0): Promise<IGetQuestions
       } as IGetQuestionsResponse;
     });
 }
+
+export const fetchTopics = (): Promise<IGetTopicsResponse> => {
+  return questionApiClient.get(QUESTION_SERVICE_ROUTES.GET_TOPICS).then((res) => {
+    return res.data as IGetTopicsResponse;
+  });
+};
+
+export const fetchDifficulties = (): Promise<IGetDifficultiesResponse> => {
+  return questionApiClient.get(QUESTION_SERVICE_ROUTES.GET_DIFFICULTIES).then((res) => {
+    return res.data as IGetDifficultiesResponse;
+  });
+};

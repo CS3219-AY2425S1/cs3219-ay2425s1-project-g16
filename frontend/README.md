@@ -5,8 +5,6 @@
 1. Run this command to build:
    ```sh
    docker build \
-      --build-arg VITE_USER_SERVICE=http://host.docker.internal:9001 \
-      --build-arg VITE_QUESTION_SERVICE=http://host.docker.internal:9002 \
       --build-arg FRONTEND_PORT=3000 \
       -t frontend-app -f frontend.Dockerfile .
    ```

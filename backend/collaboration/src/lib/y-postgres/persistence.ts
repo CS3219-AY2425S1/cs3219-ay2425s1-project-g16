@@ -1,8 +1,8 @@
-import * as Y from 'yjs';
 import { PostgresqlPersistence } from 'y-postgresql';
+import * as Y from 'yjs';
 
-import type { IWSSharedDoc } from '@/types/interfaces';
 import { dbConfig } from '@/config';
+import type { IWSSharedDoc } from '@/types/interfaces';
 
 import { setPersistence } from './utils';
 

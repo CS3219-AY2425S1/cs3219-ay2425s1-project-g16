@@ -50,3 +50,7 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
       };
     });
 };
+
+export const getUserId = () => {
+  return localStorage.getItem('cachedUserID');
+};

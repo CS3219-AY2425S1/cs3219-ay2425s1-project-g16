@@ -5,12 +5,14 @@ import { db } from '@/lib/db/index';
 import { questions } from '@/lib/db/schema';
 
 import type {
+  IGetDifficultiesResponse,
   IGetQuestionPayload,
   IGetQuestionResponse,
   IGetQuestionsPayload,
   IGetQuestionsResponse,
   IGetRandomQuestionPayload,
   IGetRandomQuestionResponse,
+  IGetTopicsResponse,
 } from './types';
 
 export const getQuestionsService = async (
@@ -179,6 +181,59 @@ export const searchQuestionsByTitleService = async (
     data: {
       questions: results, // Directly returning the query results
       totalQuestions: results.length, // Count of questions returned
+    },
+  };
+};
+
+export const getTopicsService = async (): Promise<IGetTopicsResponse> => {
+  const results = await db
+    .select({
+      topic: questions.topic,
+    })
+    .from(questions);
+
+  // If no questions are found, return a NOT_FOUND response
+  if (results.length === 0) {
+    return {
+      code: StatusCodes.NOT_FOUND,
+      data: { topics: [] },
+      error: {
+        message: 'No topics found',
+      },
+    };
+  }
+
+  const allTopics = results.flatMap((result) => result.topic);
+  const uniqueTopics = Array.from(new Set(allTopics));
+
+  return {
+    code: StatusCodes.OK,
+    data: {
+      topics: uniqueTopics,
+    },
+  };
+};
+
+export const getDifficultiesService = async (): Promise<IGetDifficultiesResponse> => {
+  const results = await db.selectDistinct({ difficulty: questions.difficulty }).from(questions);
+
+  // If no difficulties are found, return a NOT_FOUND response
+  if (results.length === 0) {
+    return {
+      code: StatusCodes.NOT_FOUND,
+      data: { difficulties: [] },
+      error: {
+        message: 'No difficulties found',
+      },
+    };
+  }
+
+  const uniqueDifficulties = results.map((result) => result.difficulty);
+
+  return {
+    code: StatusCodes.OK,
+    data: {
+      difficulties: uniqueDifficulties,
     },
   };
 };

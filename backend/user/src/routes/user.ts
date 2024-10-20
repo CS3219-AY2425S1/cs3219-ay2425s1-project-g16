@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { addAttemptedQuestion,getAttemptedQuestions } from '@/controllers/questions';
+import { addAttemptedQuestion, getAttemptedQuestions } from '@/controllers/questions';
 
 const router = express.Router();
 

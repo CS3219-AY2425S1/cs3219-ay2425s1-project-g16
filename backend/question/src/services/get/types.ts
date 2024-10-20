@@ -24,6 +24,14 @@ export type IGetQuestionsResponse = IServiceResponse<{
   totalQuestions: number; // total number of questions matching the query
 }>;
 
+export type IGetTopicsResponse = IServiceResponse<{
+  topics: Array<string>;
+}>;
+
+export type IGetDifficultiesResponse = IServiceResponse<{
+  difficulties: Array<string>;
+}>;
+
 //=============================================================================
 // /details
 //=============================================================================

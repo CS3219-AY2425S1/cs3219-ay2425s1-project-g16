@@ -11,7 +11,15 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["import", "unused-imports", "react", "@typescript-eslint", "tailwindcss", "simple-import-sort"],
+  "plugins": [
+    "import",
+    "unused-imports",
+    "react",
+    "@typescript-eslint",
+    "tailwindcss",
+    "react-hooks",
+    "simple-import-sort"
+  ],
   "rules": {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",

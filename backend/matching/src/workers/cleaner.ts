@@ -1,7 +1,7 @@
-import { client as redisClient,logQueueStatus } from '@/lib/db';
+import { client as redisClient, logQueueStatus } from '@/lib/db';
 import { STREAM_CLEANER, STREAM_GROUP, STREAM_NAME } from '@/lib/db/constants';
 import { decodeStreamTicket, getPoolKey } from '@/lib/utils';
-import { MATCH_SVC_EVENT } from '@/ws';
+import { MATCHING_EVENT } from '@/ws/events';
 
 import { sendNotif } from './common';
 
@@ -10,7 +10,7 @@ const logger = {
   error: (message: unknown) => process.send && process.send(message),
 };
 
-const sleepTime = 5000;
+const sleepTime = 500;
 let stopSignal = false;
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -80,8 +80,8 @@ async function clean() {
 
     if (socketRoom) {
       // Notify client
-      sendNotif([socketRoom], MATCH_SVC_EVENT.FAILED);
-      sendNotif([socketRoom], MATCH_SVC_EVENT.DISCONNECT);
+      sendNotif([socketRoom], MATCHING_EVENT.FAILED);
+      sendNotif([socketRoom], MATCHING_EVENT.DISCONNECT);
     }
 
     await logQueueStatus(logger, redisClient, `Queue Status after Expiring Request: <PLACEHOLDER>`);

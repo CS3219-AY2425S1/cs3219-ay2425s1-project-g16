@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { addAttemptedQuestionService,getAttemptedQuestionsService } from '@/services/questions';
+import { addAttemptedQuestionService, getAttemptedQuestionsService } from '@/services/questions';
 import type { IRouteHandler } from '@/types';
 
 export const addAttemptedQuestion: IRouteHandler = async (req, res) => {

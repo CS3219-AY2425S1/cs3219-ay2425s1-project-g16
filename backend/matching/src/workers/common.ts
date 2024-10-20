@@ -2,7 +2,7 @@
 
 import { client } from '@/lib/db';
 import { logger } from '@/lib/utils';
-import type { IChildProcessMessage, IMatchEvent } from '@/ws';
+import type { IChildProcessMessage, IMatchEvent } from '@/types';
 
 export const sendNotif = (roomIds: Array<string>, event: IMatchEvent, message?: unknown) => {
   if (process.send) {

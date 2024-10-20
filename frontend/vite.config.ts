@@ -37,6 +37,20 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/matching-service': {
+          target: env.VITE_MATCHING_SERVICE,
+          rewrite: (path) => path.replace(/^\/matching-service/, ''),
+          changeOrigin: true,
+          cookiePathRewrite: {
+            '*': '/',
+          },
+        },
+        '/matching-socket/': {
+          target: env.VITE_MATCHING_SERVICE,
+          ws: true,
+          secure: false,
+          changeOrigin: true,
+        },
       },
     },
   };

@@ -115,7 +115,7 @@ services:
       context: ./backend/question
       dockerfile: express.Dockerfile
       target: production
-      args: 
+      args:
         # For building with the correct env vars
         - port=${QUESTION_EXPRESS_PORT}
     env_file:

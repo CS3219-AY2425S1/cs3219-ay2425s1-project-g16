@@ -1,4 +1,4 @@
-import { IMatchItemsResponse,IMatchType } from '../types/index';
+import { IMatchItemsResponse, IMatchType } from '../types/index';
 import { createRoom } from './collab';
 import { getRandomQuestion } from './question';
 import { fetchAttemptedQuestions } from './user';
