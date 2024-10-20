@@ -149,7 +149,11 @@ async function match() {
       } as const;
       const requestorParams = { requestorUserId, requestorStreamId, requestorSocketPort };
 
-      const exactMatches = await redisClient.ft.search(POOL_INDEX, clause.join(' '), searchParams);
+      const exactMatches = await redisClient.ft.search(
+        POOL_INDEX,
+        clause.reverse().join(' '),
+        searchParams
+      );
       const exactMatchFound = await processMatch(
         redisClient,
         requestorParams,
@@ -186,7 +190,7 @@ async function match() {
       // Match on Difficulty
       const difficultyMatches = await redisClient.ft.search(
         POOL_INDEX,
-        `@difficulty:${difficulty} -@userId:(${requestorUserId})`,
+        `@difficulty:{${difficulty}} -@userId:(${requestorUserId})`,
         searchParams
       );
       const hasDifficultyMatch = await processMatch(

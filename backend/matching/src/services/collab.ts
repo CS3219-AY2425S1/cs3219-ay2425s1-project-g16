@@ -1,23 +1,12 @@
-import axios from 'axios';
-
-import { PEERPREP_COLLAB_HOST } from '@/config';
+import crypto from 'crypto';
 
 export async function createRoom(
   userId1: string,
   userId2: string,
   questionId: string
 ): Promise<string> {
-  const response = await axios.get<{ roomName: string }>(`${PEERPREP_COLLAB_HOST}/room`, {
-    params: {
-      userid1: userId1,
-      userid2: userId2,
-      questionid: questionId,
-    },
-  });
-
-  if (response.status !== 200 || !response.data?.roomName) {
-    throw new Error('Failed to create room');
-  }
-
-  return response.data.roomName;
+  const combinedString = `uid1=${userId1}|uid2=${userId2}|qid=${questionId}`;
+  const hash = crypto.createHash('sha256');
+  const uniqueRoomName = hash.update(combinedString).digest('hex');
+  return uniqueRoomName;
 }
