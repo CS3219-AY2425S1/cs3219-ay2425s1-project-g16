@@ -18,7 +18,7 @@ export type IQueueRequest = Partial<Pick<IRequestMatchPayload, 'topic' | 'diffic
 
 export type IPoolTicket = IQueueRequest;
 
-export type IRedisClient = Awaited<ReturnType<(typeof client)['connect']>>;
+export type IRedisClient = typeof client;
 
 export type IStreamMessage = {
   id: string;
