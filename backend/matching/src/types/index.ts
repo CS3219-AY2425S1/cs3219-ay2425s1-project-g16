@@ -27,16 +27,7 @@ export type IQueueRequest = Partial<IRequestMatchWSPayload> &
 
 export type IPoolTicket = IQueueRequest;
 
-export type IRedisClient = Awaited<ReturnType<(typeof client)['connect']>>;
-
-export type IStreamMessage = {
-  id: string;
-  message?: {
-    // Stream
-    [x: string]: string;
-  };
-  value?: Awaited<ReturnType<(typeof client)['ft']['search']>>['documents'][number]['value'];
-};
+export type IRedisClient = typeof client;
 
 export type IMatchEvent = (typeof MATCHING_EVENT)[keyof typeof MATCHING_EVENT];
 export type IChildProcessMessage = {

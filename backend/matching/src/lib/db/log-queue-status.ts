@@ -4,8 +4,16 @@ import { client } from './client';
 import { STREAM_NAME } from './constants';
 
 export const getQueueStatusLog = async (redisClient: typeof client) => {
-  const queueStatus = await redisClient.xRange(STREAM_NAME, '-', '+');
-  const messages = queueStatus.map((v) => v.message);
+  const queueStatus = await redisClient.xrange(STREAM_NAME, '-', '+');
+  const messages = queueStatus.map(([id, fields]) => {
+    const record: Record<string, unknown> = { id };
+
+    for (let i = 0; i < fields.length; i = i + 2) {
+      record[fields[i]] = fields[i + 1];
+    }
+
+    return record;
+  });
   return JSON.stringify(messages);
 };
 

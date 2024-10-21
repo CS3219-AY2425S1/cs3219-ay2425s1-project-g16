@@ -1,9 +1,9 @@
 import type { DefaultEventsMap, Server, Socket } from 'socket.io';
 
-import { client, logQueueStatus } from '@/lib/db';
+import { client as redisClient, logQueueStatus } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import { queueingService } from '@/services';
-import type { IRedisClient, IRequestMatchEvent } from '@/types';
+import type { IRequestMatchEvent } from '@/types';
 
 import { MATCHING_EVENT, WS_EVENT } from './events';
 
@@ -35,8 +35,6 @@ export const cancelRoomHandler =
     }
   };
 
-let redisClient: IRedisClient;
-
 export const queueEventHandler =
   <T>(socket: ISocketIOSocket<T>) =>
   async (payload: Partial<IRequestMatchEvent>) => {
@@ -64,10 +62,6 @@ export const queueEventHandler =
 
     // 3. Start Queuing
     try {
-      if (!redisClient || !redisClient.isOpen || !redisClient.isReady) {
-        redisClient = await client.connect();
-      }
-
       const { userId, difficulty, topic } = payload;
       const timestamp = `${Date.now()}`;
       await queueingService(redisClient, {

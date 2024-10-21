@@ -1,6 +1,8 @@
 import type { IPoolTicket } from '@/types';
 
-export const getRedisPayload = (payload: IPoolTicket) => {
+export const getRedisPayload = (
+  payload: IPoolTicket
+): { topic?: string } & Omit<IPoolTicket, 'topic'> => {
   const { topic, difficulty, ...rest } = payload;
   // eslint-disable-next-line  @typescript-eslint/no-empty-object-type
   const difficultyField: { difficulty: string } | {} = difficulty ? { difficulty } : {};
