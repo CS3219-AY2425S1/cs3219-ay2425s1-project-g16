@@ -1,0 +1,11 @@
+#! kustomization.yaml
+# Generated code, do not edit
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+    - ../../base
+patches:
+    - path: frontend-service.yaml
+    - path: match-db-match-db-docker-persistentVolumeClaim.yaml
+    - path: question-db-question-db-docker-persistentVolumeClaim.yaml
+    - path: user-db-user-db-docker-persistentVolumeClaim.yaml
