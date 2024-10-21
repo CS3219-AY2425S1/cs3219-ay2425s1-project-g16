@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev": "concurrently \"npm run dev:user\" \"npm run dev:question\" \"npm run dev:collab\" \"npm run dev:match\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:user": "npm run dev -w user",
+    "dev:question": "npm run dev -w question",
+    "dev:collab": "npm run dev -w collaboration",
+    "dev:match": "npm run dev -w matching",
+    "build": "npm run build --workspaces --if-present",
     "fmt": "prettier --config .prettierrc \"./**/*.{ts,tsx}\" --write",
     "lint": "eslint --config .eslintrc.json \"./**/*.{ts,tsx}\" --fix",
     "prepare": "husky"
@@ -21,6 +28,7 @@
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.56.1",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
+    "concurrently": "^9.0.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.30.0",

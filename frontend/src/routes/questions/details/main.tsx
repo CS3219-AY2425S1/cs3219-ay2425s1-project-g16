@@ -1,19 +1,13 @@
-import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { QueryClient,useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 
 import { WithNavBanner } from '@/components/blocks/authed/with-nav-banner';
+import { QuestionDetails } from '@/components/blocks/questions/details';
+import { Card } from '@/components/ui/card';
 import { useCrumbs } from '@/lib/hooks/use-crumbs';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
-import { getQuestionDetails } from '@/services/question-service';
-
-import { DetailsCard } from './details-card';
-
-const questionDetailsQuery = (id: number) =>
-  queryOptions({
-    queryKey: ['qn', 'details', id],
-    queryFn: async ({ signal: _ }) => getQuestionDetails(id),
-  });
+import { questionDetailsQuery } from '@/lib/queries/question-details';
 
 export const loader =
   (queryClient: QueryClient) =>
@@ -23,7 +17,7 @@ export const loader =
     return { questionId };
   };
 
-export const QuestionDetails = () => {
+export const QuestionDetailsPage = () => {
   const { questionId } = useLoaderData() as Awaited<ReturnType<ReturnType<typeof loader>>>;
   const { data: details } = useSuspenseQuery(questionDetailsQuery(questionId));
   const questionDetails = useMemo(() => {
@@ -38,7 +32,9 @@ export const QuestionDetails = () => {
   return (
     <WithNavBanner crumbs={[...crumbs]}>
       <div className='flex flex-1 overflow-hidden'>
-        <DetailsCard questionDetails={questionDetails} />
+        <Card className='border-border m-4 w-1/3 max-w-[500px] overflow-hidden p-4 md:w-2/5'>
+          <QuestionDetails questionDetails={questionDetails} />
+        </Card>
         <div className='flex flex-1 flex-col' />
       </div>
     </WithNavBanner>

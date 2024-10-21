@@ -9,6 +9,7 @@
     "preview": "vite preview --port 5173 --host 0.0.0.0"
   },
   "dependencies": {
+    "@codemirror/view": "^6.34.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -22,10 +23,15 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
+    "@replit/codemirror-vscode-keymap": "^6.0.2",
     "@radix-ui/react-visually-hidden": "^1.1.0",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.56.2",
     "@tanstack/react-table": "^8.20.5",
+    "@uidotdev/usehooks": "^2.4.1",
+    "@uiw/codemirror-extensions-langs": "^4.23.5",
+    "@uiw/codemirror-themes-all": "^4.23.5",
+    "@uiw/react-codemirror": "^4.23.5",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -46,6 +52,10 @@
     "socket.io-client": "^4.8.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "ws": "^8.18.0",
+    "y-codemirror.next": "^0.3.5",
+    "y-websocket": "^2.0.4",
+    "yjs": "^13.6.20",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -55,6 +65,7 @@
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/ws": "^8.5.12",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",

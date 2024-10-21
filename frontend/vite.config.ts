@@ -37,6 +37,14 @@ export default defineConfig(({ mode }) => {
             '*': '/',
           },
         },
+        '/collaboration-service': {
+          target: env.VITE_COLLAB_SERVICE,
+          rewrite: (path) => path.replace(/^\/collaboration-service/, ''),
+          changeOrigin: true,
+          cookiePathRewrite: {
+            '*': '/',
+          },
+        },
         '/matching-service': {
           target: env.VITE_MATCHING_SERVICE,
           rewrite: (path) => path.replace(/^\/matching-service/, ''),
@@ -44,6 +52,11 @@ export default defineConfig(({ mode }) => {
           cookiePathRewrite: {
             '*': '/',
           },
+        },
+        '/collab-ws': {
+          target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
+          rewrite: (path) => path.replace(/\/collab-ws/, ''),
+          ws: true,
         },
         '/matching-socket/': {
           target: env.VITE_MATCHING_SERVICE,

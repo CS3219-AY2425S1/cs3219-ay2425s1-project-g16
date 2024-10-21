@@ -183,7 +183,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   results:
-    if: ${{ always() }}
+    if: ${{ always() && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     name: Final Results
     needs: build-and-push-image

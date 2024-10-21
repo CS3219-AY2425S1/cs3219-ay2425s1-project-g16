@@ -5,6 +5,7 @@ import { io } from 'socket.io-client';
 
 import { Button } from '@/components/ui/button';
 import { MATCHING_EVENT, WS_EVENT } from '@/lib/ws';
+import { MATCHING_SOCKET } from '@/services/api-clients';
 import { cancelMatch } from '@/services/match-service';
 import { getUserId } from '@/services/user-service';
 import { useMatchRequest } from '@/stores/match-request-store';
@@ -85,7 +86,7 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
     }
 
     const socket = io({
-      path: '/matching-socket/',
+      path: MATCHING_SOCKET,
       reconnection: true,
       withCredentials: true,
     });
