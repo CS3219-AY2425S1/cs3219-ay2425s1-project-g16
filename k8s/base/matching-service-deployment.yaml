@@ -1,0 +1,59 @@
+#! matching-service-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: matching-service
+    namespace: code
+    labels:
+        com.docker.compose.project: code
+        com.docker.compose.service: matching-service
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: code
+            com.docker.compose.service: matching-service
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: code
+                com.docker.compose.service: matching-service
+                com.docker.compose.network.match-api-network: "true"
+                com.docker.compose.network.match-db-network: "true"
+                com.docker.compose.network.question-api-network: "true"
+        spec:
+            containers:
+                - name: match-express
+                  image: match-express
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: EXPRESS_PORT
+                      value: "9004"
+                    - name: MATCHING_DB_HOSTNAME
+                      value: "match-db"
+                    - name: MATCHING_DB_PASSWORD
+                      value: "G7jBgyz9wGAFQ5La"
+                    - name: MATCHING_DB_PORT
+                      value: "6379"
+                    - name: MATCHING_DB_USERNAME
+                      value: "peerprep-match-express"
+                    - name: PEERPREP_UI_HOST
+                      value: "http://frontend:3000"
+                    - name: REDIS_ARGS
+                      value: "--requirepass G7jBgyz9wGAFQ5La --user peerprep-match-express on >G7jBgyz9wGAFQ5La ~* allcommands --user default off nopass nocommands"
+                  livenessProbe:
+                    exec:
+                        command:
+                            - /bin/sh
+                            - -c
+                            - wget --no-verbose --tries=1 --spider http://localhost:9004/health || exit 1
+                    periodSeconds: 30
+                    initialDelaySeconds: 5
+                    timeoutSeconds: 10
+                    failureThreshold: 5
+                  ports:
+                    - name: matching-s-9004
+                      containerPort: 9004
