@@ -1,0 +1,190 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: user-db-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.user-db: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.user-db: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.user-db: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: question-db-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.question-db: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.question-db: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.question-db: "true"
+
+---         
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: collab-db-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.collab-db: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.collab-db: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.collab-db: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: match-db-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.match-db: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-db: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-db: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: user-api-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.user-api: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.user-api: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.user-api: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: question-api-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.question-api: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.question-api: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.question-api: "true"
+
+---         
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: collab-api-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.collab-api: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.collab-api: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.collab-api: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: match-api-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.match-api: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-api: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-api: "true"
