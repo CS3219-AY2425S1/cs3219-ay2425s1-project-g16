@@ -11,6 +11,7 @@ db-up:
 
 db-down:
 	docker compose --env-file .env.local -f docker-compose.local.yaml down
+	echo 'y' | docker volume prune
 
 up:
 	./scripts/ensure-volume.sh
@@ -18,3 +19,10 @@ up:
 
 down:
 	docker compose --env-file .env.local down
+	echo 'y' | docker volume prune
+
+k8s-up:
+	./scripts/k8s-up.sh
+
+k8s-down:
+	./scripts/k8s-down.sh

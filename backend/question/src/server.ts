@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
 
-import { UI_HOST } from '@/config';
+import { LOAD_TEST_POD, UI_HOST } from '@/config';
 import { config, db } from '@/lib/db';
 import { logger } from '@/lib/utils';
 import questionsRouter from '@/routes/question';
@@ -32,7 +32,7 @@ app.use(json());
 app.use(helmet());
 app.use(
   cors({
-    origin: [UI_HOST],
+    origin: [UI_HOST, LOAD_TEST_POD],
     credentials: true,
   })
 );

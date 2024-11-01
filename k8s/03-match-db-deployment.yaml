@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: match-db
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: match-db
+spec:
+  serviceName: match-db
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: match-db
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: match-db
+        peerprep.network.match-db: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: redis
+          image: redis/redis-stack-server
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MATCHING_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matching-secret
+                  key: MATCHING_DB_PASSWORD
+            - name: REDIS_ARGS
+              valueFrom:
+                secretKeyRef:
+                  name: matching-secret  
+                  key: REDIS_ARGS
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  redis-cli -a "$MATCHING_DB_PASSWORD" --raw incr ping
+            periodSeconds: 10
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: match-db-6379
+              containerPort: 6379
+          volumeMounts:
+            - name: match-db-vol
+              mountPath: /data  
+  volumeClaimTemplates:
+    - metadata:
+        name: match-db-vol
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "standard"               # Update this based on your storage class
+        resources:
+          requests:
+            storage: 500Mi                              # Define your storage requirement

@@ -133,7 +133,7 @@ async function match() {
       sendNotif([requestorSocketPort], MATCHING_EVENT.MATCHING);
       await redisClient.hSet(getPoolKey(requestorUserId), 'pending', 'false');
 
-      const clause = [`-@userId:(${requestorUserId}) @pending:(true)`];
+      let clause = [`-@userId:(${requestorUserId})`, '@pending:(true)'];
 
       if (difficulty) {
         clause.push(`@difficulty:{${difficulty}}`);
@@ -142,6 +142,9 @@ async function match() {
       if (topic) {
         clause.push(`@topic:{${topic}}`);
       }
+
+      // Push UserID clause to the back.
+      clause = clause.reverse();
 
       const searchParams = {
         LIMIT: { from: 0, size: 1 },

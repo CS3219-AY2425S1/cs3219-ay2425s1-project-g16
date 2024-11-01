@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: frontend
+        peerprep.network.match-api: "true"
+        peerprep.network.user-api: "true"
+        peerprep.network.question-api: "true"
+        peerprep.network.collab-api: "true"
+    spec:
+      initContainers:
+        - name: wait-for-services
+          image: node:lts-alpine
+          env:
+            - name: VITE_USER_SERVICE
+              value: http://user-service:9001
+            - name: VITE_QUESTION_SERVICE
+              value: http://question-service:9002
+            - name: VITE_COLLAB_SERVICE
+              value: http://collab-service:9003
+            - name: VITE_MATCHING_SERVICE
+              value: http://matching-service:9004
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until wget --no-verbose --tries=1 --spider "$VITE_USER_SERVICE/health"; do
+                echo "Waiting for User Service"
+                sleep 2
+              done &
+
+              until wget --no-verbose --tries=1 --spider "$VITE_QUESTION_SERVICE/health"; do
+                echo "Waiting for Question Service"
+                sleep 2
+              done &
+
+              until wget --no-verbose --tries=1 --spider "$VITE_COLLAB_SERVICE/health"; do
+                echo "Waiting for Collaboration Service"
+                sleep 2
+              done &
+
+              until wget --no-verbose --tries=1 --spider "$VITE_MATCHING_SERVICE/health"; do
+                echo "Waiting for Matching Service"
+                sleep 2
+              done &
+
+              wait
+              echo "All services healthy"
+      
+      containers:
+        - name: frontend
+          image: ay2425s1cs3219g16/frontend:latest
+          imagePullPolicy: Always
+          envFrom:
+          - secretRef: 
+              name: frontend-secret
+          env:
+            - name: FRONTEND_PORT
+              value: "3000"
+            - name: VITE_USER_SERVICE
+              value: http://user-service:9001
+            - name: VITE_QUESTION_SERVICE
+              value: http://question-service:9002
+            - name: VITE_COLLAB_SERVICE
+              value: http://collab-service:9003
+            - name: VITE_MATCHING_SERVICE
+              value: http://matching-service:9004
+          ports:
+            - name: frontend-ctr
+              containerPort: 3000
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+                

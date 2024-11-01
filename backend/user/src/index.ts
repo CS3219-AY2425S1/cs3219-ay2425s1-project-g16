@@ -6,6 +6,6 @@ const port = Number.parseInt(EXPRESS_PORT ?? '8001');
 
 const listenMessage = `App listening on port: ${port}`;
 app.listen(port, async () => {
-  await dbHealthCheck();
+  await dbHealthCheck(false);
   logger.info(listenMessage);
 });

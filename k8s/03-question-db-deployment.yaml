@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: question-db
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: question-db
+spec:
+  serviceName: question-db
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: question-db
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: question-db
+        peerprep.network.question-db: "true"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: postgres
+          image: postgres:16.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PGDATA
+              value: /data/question-db
+            - name: POSTGRES_DB
+              value: question
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: question-secret  
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: question-secret 
+                  key: POSTGRES_PASSWORD
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            periodSeconds: 10
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: qn-db-5432
+              containerPort: 5432
+          volumeMounts:
+            - name: question-db-vol
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: question-db-vol
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "standard"               # Update this based on your storage class
+        resources:
+          requests:
+            storage: 500Mi                              # Define your storage requirement

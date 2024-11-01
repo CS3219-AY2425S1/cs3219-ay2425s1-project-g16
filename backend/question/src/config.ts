@@ -11,3 +11,5 @@ export const dbConfig = {
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
 };
+
+export const LOAD_TEST_POD = process.env.LOAD_TEST_POD || 'http://question-service-load-test';

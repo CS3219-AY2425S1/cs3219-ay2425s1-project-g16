@@ -13,9 +13,14 @@ class RedisClient {
         host: DB_HOSTNAME,
         port: DB_PORT,
       },
-    }).on('error', (err) => {
-      logger.error(`Redis Client error: ${err}`);
-    });
+    })
+      .on('error', (err) => {
+        const { name, message, stack, cause } = err as Error;
+        logger.error({ name, message, stack, cause }, 'Redis Client error');
+      })
+      .on('connect', () => {
+        logger.info('Redis Client connected');
+      });
   }
 }
 

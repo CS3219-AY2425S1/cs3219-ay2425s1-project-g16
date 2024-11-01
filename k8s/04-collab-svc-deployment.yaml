@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collab-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: collab-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: collab-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: collab-service
+        peerprep.network.collab-api: "true"
+        peerprep.network.collab-db: "true"
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16.4
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: collaboration-secret
+                  key: EXPRESS_DB_HOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: collaboration-secret
+                  key: EXPRESS_DB_PORT
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: collaboration-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: collaboration-secret
+                  key: POSTGRES_USER
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: collaboration-secret
+                  key: POSTGRES_DB
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while ! psql -c 'SELECT 1' > /dev/null 2>&1; do
+                echo "Waiting for $PGDATABASE"
+                sleep 1
+              done
+              echo "$PGDATABASE is ready!"
+      
+      containers:
+        - name: collab-express
+          image: ay2425s1cs3219g16/collab-express:latest
+          imagePullPolicy: Always
+          envFrom:
+          - secretRef: 
+              name: collaboration-secret
+          env:
+            # When load testing, it exposes port 80 by default.
+            - name: LOAD_TEST_POD
+              value: http://collab-service-load-test
+            - name: PEERPREP_UI_HOST
+              value: http://frontend
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - wget --no-verbose --tries=1 --spider http://localhost:9003/health || exit 1
+            periodSeconds: 30
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: collab-svc-ctr
+              containerPort: 9003
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+                

@@ -24,7 +24,6 @@ const main = async () => {
     return;
   }
 
-  logger.info('Connected');
   const isSeeded = await redisClient.hGetAll(SEED_KEY);
 
   if (Object.keys(isSeeded).length > 0) {

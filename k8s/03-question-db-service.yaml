@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: question-db
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: question-db
+spec:
+  type: ClusterIP
+  selector:
+    project: peerprep
+    peerprep.service: question-db
+  ports:
+    - name: qn-db-5432
+      port: 5432
+      targetPort: qn-db-5432
