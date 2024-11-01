@@ -204,11 +204,14 @@ jobs:
       - name: Deploy to GKE
         if: ${{ contains(github.ref, 'main') && github.event.pull_request.title != 'Feedback' && env.IS_GKE_CLUSTER_UP }}
         run: |-
-          deployments=("collab-service" "matching-service" "question-service" "user-service" "frontend")
-          for dplymnt in "${deployments[@]}"; do
-            kubectl -n peerprep rollout restart deployment "$dplymnt"
-          done
-
+          service="${{ matrix.package }}"
+          deployment="frontend"
+          if [[ "$service" == "collaboration" ]]; then
+            deployment="collab-service"
+          else if [[ "$service" != "frontend" ]]; then
+            deployment="$service-service"
+          fi
+          kubectl -n peerprep rollout restart deployment $deployment
 
   results:
     if: ${{ always() && !github.event.pull_request.draft }}
