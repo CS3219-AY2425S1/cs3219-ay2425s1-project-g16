@@ -4,7 +4,7 @@ export async function createRoom(
   userId1: string,
   userId2: string,
   questionId: string,
-  attemptCounts: number
+  _attemptCounts: number
 ): Promise<string> {
   const response = await collabServiceClient.get<{ roomName: string }>(
     routes.COLLAB_SERVICE.GET_ROOM.path,
