@@ -26,7 +26,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           className={cn(
             'prose prose-neutral text-sm text-primary',
             'prose-a:text-blue-500 prose-code:text-secondary-foreground prose-pre:ml-2 prose-pre:bg-transparent prose-pre:p-0',
-            'prose-headings:text-primary prose-strong:text-primary prose-p:text-primary'
+            'prose-headings:text-primary prose-strong:text-primary prose-p:text-primary',
+            'break-words'
           )}
         >
           {message.text}
