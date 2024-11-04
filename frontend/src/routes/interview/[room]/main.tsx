@@ -59,8 +59,8 @@ export const InterviewRoom = () => {
   ) : (
     <WithNavBlocker>
       <WithNavBanner crumbs={crumbs}>
-        <div className='flex flex-1 overflow-hidden'>
-          <Card className='border-border m-4 flex w-[500px] overflow-hidden p-4 md:w-2/5'>
+        <div className='scrollbar-track-transparent scrollbar-thin flex flex-1 overflow-hidden sm:overflow-x-auto sm:overflow-y-hidden'>
+          <Card className='border-border m-4 flex w-[500px] overflow-hidden p-4 md:w-2/5 md:min-w-[292px]'>
             <Tabs defaultValue='details' className='size-full'>
               <TabsList className=''>
                 <TabsTrigger value='details'>Question Details</TabsTrigger>
@@ -85,7 +85,7 @@ export const InterviewRoom = () => {
             />
           </div>
           {(isAIChatOpen || isPartnerChatOpen) && (
-            <Card className='border-border m-4 w-[500px] overflow-hidden md:w-1/3'>
+            <Card className='border-border m-4 w-[500px] overflow-hidden md:w-1/3 md:min-w-[376px]'>
               {isAIChatOpen && (
                 <AIChat
                   isOpen={isAIChatOpen}

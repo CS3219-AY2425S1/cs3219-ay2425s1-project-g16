@@ -22,7 +22,7 @@ import { CompleteDialog } from './room/complete-dialog';
 import { OtherUserCompletingDialog } from './room/other-user-completing-dialog';
 
 const EXTENSION_HEIGHT = 250;
-const MIN_EDITOR_HEIGHT = 350;
+const MIN_EDITOR_HEIGHT = 150;
 
 type EditorProps = {
   questionId: number;
