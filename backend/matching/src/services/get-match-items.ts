@@ -33,7 +33,12 @@ export async function getMatchItems(
       return undefined;
     }
 
-    const roomId = await createRoom(userId1, userId2, question.id.toString());
+    const roomId = await createRoom(
+      userId1,
+      userId2,
+      question.id.toString(),
+      question.attemptCount
+    );
 
     logger.info('Successfully got match items');
     return {

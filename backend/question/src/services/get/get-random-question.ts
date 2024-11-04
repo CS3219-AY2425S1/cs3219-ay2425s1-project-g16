@@ -5,6 +5,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  InferSelectModel,
   isNull,
   or,
   sql,
@@ -86,8 +87,17 @@ type Params = {
   difficulty?: string;
 };
 
+type IGetRandomQuestionResponse = InferSelectModel<typeof QUESTIONS_TABLE> & {
+  attemptCount: number;
+};
+
 // Fetch an unattempted question or fallback to the least attempted one
-export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }: Params) => {
+export const getRandomQuestion = async ({
+  userId1,
+  userId2,
+  topics,
+  difficulty,
+}: Params): Promise<IGetRandomQuestionResponse | null> => {
   // If an attempt contains either user's ID
   const ids = [userId1, userId2];
   const userIdClause = [
@@ -128,14 +138,15 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
   }
 
   for (const filterClause of filterCombinations) {
-    // Check if questions exist with current filters
-    const questionExists = await db
-      .select({ count: sql<number>`count(*)` })
+    // Check if AT LEAST 1 question exists with current filters
+    const questionCounts = await db
+      .select({ id: QUESTIONS_TABLE.id })
       .from(QUESTIONS_TABLE)
       .where(and(...filterClause))
-      .then((result) => Number(result[0].count) > 0);
+      .limit(1);
 
-    if (!questionExists) {
+    // No questions exist with the filter.
+    if (!questionCounts || !questionCounts.length) {
       continue;
     }
 
@@ -149,28 +160,33 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
       .limit(1);
 
     if (bothUnattempted && bothUnattempted.length > 0) {
-      return bothUnattempted[0].question;
+      return { ...bothUnattempted[0].question, attemptCount: 0 };
     }
 
     // If no unattempted question, try least attempted
-    const attempts = db.$with('at').as(
-      db
-        .select({
-          ...getTableColumns(QUESTIONS_TABLE),
-          user1Count:
-            sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId1}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId1}::uuid THEN 1 END)`.as(
-              'user1_attempts'
-            ),
-          user2Count:
-            sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId2}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId2}::uuid THEN 1 END)`.as(
-              'user2_attempts'
-            ),
-        })
-        .from(QUESTIONS_TABLE)
-        .innerJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
-        .where(and(...filterClause))
-        .groupBy(QUESTIONS_TABLE.id)
-    );
+    let nestedQuery = db
+      .select({
+        ...getTableColumns(QUESTIONS_TABLE),
+        user1Count:
+          sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId1}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId1}::uuid THEN 1 END)`.as(
+            'user1_attempts'
+          ),
+        user2Count:
+          sql`SUM(CASE WHEN ${QUESTION_ATTEMPTS_TABLE.userId1} = ${userId2}::uuid OR ${QUESTION_ATTEMPTS_TABLE.userId2} = ${userId2}::uuid THEN 1 END)`.as(
+            'user2_attempts'
+          ),
+      })
+      .from(QUESTIONS_TABLE)
+      .innerJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
+      .$dynamic();
+
+    if (filterClause.length) {
+      nestedQuery = nestedQuery.where(and(...filterClause));
+    }
+
+    nestedQuery = nestedQuery.groupBy(QUESTIONS_TABLE.id);
+
+    const attempts = db.$with('at').as(nestedQuery);
 
     const result = await db
       .with(attempts)
@@ -180,7 +196,10 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
       .limit(1);
 
     if (result && result.length > 0) {
-      return { ...result[0], user1Count: undefined, user2Count: undefined };
+      const { user1Count, user2Count, ...details } = result[0];
+      const attemptCount =
+        (user1Count ? (user1Count as number) : 0) + (user2Count ? (user2Count as number) : 0);
+      return { ...details, attemptCount };
     }
   }
 
