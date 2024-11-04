@@ -182,7 +182,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         <div className='flex w-full flex-col gap-6 text-center'>
           <MessageSquareIcon className='mx-auto size-12 opacity-50' />
           <p>No messages yet. Start a conversation, or use one of these prompts:</p>
-          <div className='flex flex-wrap gap-4'>
+          <div className='flex flex-wrap justify-center gap-4'>
             {prompts.map((value, index) => (
               <Button
                 key={index}

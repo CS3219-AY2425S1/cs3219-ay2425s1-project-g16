@@ -66,7 +66,7 @@ export const InterviewRoom = () => {
                 <TabsTrigger value='details'>Question Details</TabsTrigger>
                 <TabsTrigger value='attempts'>Past Attempts</TabsTrigger>
               </TabsList>
-              <TabsContent value='details' className=''>
+              <TabsContent value='details' className='h-full'>
                 <QuestionDetails {...{ questionDetails }} />
               </TabsContent>
               <TabsContent value='attempts' className='flex h-[calc(100%-44px)]'>
