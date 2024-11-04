@@ -18,7 +18,8 @@ export async function getCollabRoomService(
     };
   }
 
-  const combinedString = `uid1=${userid1}|uid2=${userid2}|qid=${questionid}`;
+  const randomString = crypto.randomBytes(4).toString('hex');
+  const combinedString = `uid1=${userid1}|uid2=${userid2}|qid=${questionid}|rand=${randomString}`;
   const hash = crypto.createHash('sha256');
   const uniqueRoomName = hash.update(combinedString).digest('hex');
   return {
