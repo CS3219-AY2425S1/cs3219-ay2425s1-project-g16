@@ -5,6 +5,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  InferSelectModel,
   isNull,
   or,
   sql,
@@ -86,11 +87,17 @@ type Params = {
   difficulty?: string;
 };
 
+type IGetRandomQuestionResponse = InferSelectModel<typeof QUESTIONS_TABLE> & {
+  attemptCount: number;
+};
+
 // Fetch an unattempted question or fallback to the least attempted one
-export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }: Params) => {
-  /**
-   * 1. Both Unattempted
-   */
+export const getRandomQuestion = async ({
+  userId1,
+  userId2,
+  topics,
+  difficulty,
+}: Params): Promise<IGetRandomQuestionResponse | null> => {
   // If an attempt contains either user's ID
   const ids = [userId1, userId2];
   const userIdClause = [
@@ -103,35 +110,61 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
     or(...userIdClause),
   ];
 
-  // Build the filter clause
-  // - attempt ID null: No attempts
-  // - topics: If specified, must intersect using Array Intersect
-  const filterClause = [];
+  // Try different filter combinations in order of specificity
+  const filterCombinations = [
+    // Exact match
+    topics && difficulty
+      ? [arrayOverlaps(QUESTIONS_TABLE.topic, topics), eq(QUESTIONS_TABLE.difficulty, difficulty)]
+      : // Topic only
+        topics
+        ? [arrayOverlaps(QUESTIONS_TABLE.topic, topics)]
+        : // Difficulty only
+          difficulty
+          ? [eq(QUESTIONS_TABLE.difficulty, difficulty)]
+          : // No filters
+            [],
+  ];
 
-  if (topics) {
-    filterClause.push(arrayOverlaps(QUESTIONS_TABLE.topic, topics));
+  // Additional combinations if both topic and difficulty are provided
+  if (topics && difficulty) {
+    filterCombinations.push(
+      // Topic only
+      [arrayOverlaps(QUESTIONS_TABLE.topic, topics)],
+      // Difficulty only
+      [eq(QUESTIONS_TABLE.difficulty, difficulty)],
+      // No filters
+      []
+    );
   }
 
-  if (difficulty) {
-    filterClause.push(eq(QUESTIONS_TABLE.difficulty, difficulty));
-  }
+  for (const filterClause of filterCombinations) {
+    // Check if AT LEAST 1 question exists with current filters
+    const questionCounts = await db
+      .select({ id: QUESTIONS_TABLE.id })
+      .from(QUESTIONS_TABLE)
+      .where(and(...filterClause))
+      .limit(1);
 
-  const bothUnattempted = await db
-    .select({ question: QUESTIONS_TABLE })
-    .from(QUESTIONS_TABLE)
-    .leftJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
-    .where(and(isNull(QUESTION_ATTEMPTS_TABLE.attemptId), ...filterClause))
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
+    // No questions exist with the filter.
+    if (!questionCounts || !questionCounts.length) {
+      continue;
+    }
 
-  if (bothUnattempted && bothUnattempted.length > 0) {
-    return bothUnattempted[0].question;
-  }
+    // Try to find an unattempted question with current filters
+    const bothUnattempted = await db
+      .select({ question: QUESTIONS_TABLE })
+      .from(QUESTIONS_TABLE)
+      .leftJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
+      .where(and(isNull(QUESTION_ATTEMPTS_TABLE.attemptId), ...filterClause))
+      .orderBy(sql`RANDOM()`)
+      .limit(1);
 
-  // 2. At least one user has attempted.
-  // - Fetch all questions, summing attempts by both users, ranking and selecting the lowest count.
-  const attempts = db.$with('at').as(
-    db
+    if (bothUnattempted && bothUnattempted.length > 0) {
+      return { ...bothUnattempted[0].question, attemptCount: 0 };
+    }
+
+    // If no unattempted question, try least attempted
+    let nestedQuery = db
       .select({
         ...getTableColumns(QUESTIONS_TABLE),
         user1Count:
@@ -145,20 +178,31 @@ export const getRandomQuestion = async ({ userId1, userId2, topics, difficulty }
       })
       .from(QUESTIONS_TABLE)
       .innerJoin(QUESTION_ATTEMPTS_TABLE, and(...joinClause))
-      .where(and(...filterClause))
-      .groupBy(QUESTIONS_TABLE.id)
-  );
-  const result = await db
-    .with(attempts)
-    .select()
-    .from(attempts)
-    .orderBy(asc(sql`COALESCE(user1_attempts,0) + COALESCE(user2_attempts,0)`))
-    .limit(1);
+      .$dynamic();
 
-  if (result && result.length > 0) {
-    return { ...result[0], user1Count: undefined, user2Count: undefined };
+    if (filterClause.length) {
+      nestedQuery = nestedQuery.where(and(...filterClause));
+    }
+
+    nestedQuery = nestedQuery.groupBy(QUESTIONS_TABLE.id);
+
+    const attempts = db.$with('at').as(nestedQuery);
+
+    const result = await db
+      .with(attempts)
+      .select()
+      .from(attempts)
+      .orderBy(asc(sql`COALESCE(user1_attempts,0) + COALESCE(user2_attempts,0)`))
+      .limit(1);
+
+    if (result && result.length > 0) {
+      const { user1Count, user2Count, ...details } = result[0];
+      const attemptCount =
+        (user1Count ? (user1Count as number) : 0) + (user2Count ? (user2Count as number) : 0);
+      return { ...details, attemptCount };
+    }
   }
 
-  // This branch should not be reached
-  logger.info('Unreachable Branch - If first query fails, second query must return something');
+  logger.error('No questions found with any filter combination');
+  return null;
 };
