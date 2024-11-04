@@ -19,7 +19,7 @@ interface AIChatProps {
 }
 
 interface StoredChat {
-  messages: ChatMessageType[];
+  messages: Array<ChatMessageType>;
   questionDetails: string;
 }
 
@@ -35,7 +35,7 @@ export const AIChat: React.FC<AIChatProps> = ({
   language = 'python',
   questionDetails = '',
 }) => {
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  const [messages, setMessages] = useState<Array<ChatMessageType>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const streamingTextRef = useRef<string>('');
@@ -179,7 +179,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       title='AI Assistant'
       onClearHistory={handleClearHistory}
       CustomPlaceHolderElem={({ onSend }) => (
-        <div className='flex flex-col gap-6 text-center'>
+        <div className='flex w-full flex-col gap-6 text-center'>
           <MessageSquareIcon className='mx-auto size-12 opacity-50' />
           <p>No messages yet. Start a conversation, or use one of these prompts:</p>
           <div className='flex flex-wrap gap-4'>
@@ -188,7 +188,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 key={index}
                 variant='outline'
                 size='sm'
-                className='rounded-xl'
+                className='max-w-full whitespace-normal break-words rounded-xl '
                 onClick={() => onSend(value)}
               >
                 <span>{value}</span>
