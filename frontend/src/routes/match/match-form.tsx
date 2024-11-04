@@ -85,9 +85,9 @@ export const MatchForm = ({ topics, difficulties }: MatchFormProps) => {
                             })}
                           </MultiSelectorList>
                         </MultiSelectorContent>
+                        <FormMessage />
                       </MultiSelector>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />

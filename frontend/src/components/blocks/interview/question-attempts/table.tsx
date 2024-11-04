@@ -171,7 +171,8 @@ export function QuestionAttemptsTable<TValue>({
                       </Button>
                     </PaginationItem>
                     <PaginationItem className='text-sm'>
-                      {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                      {table.getState().pagination.pageIndex + 1} of{' '}
+                      {Math.max(1, table.getPageCount())}
                     </PaginationItem>
                     <PaginationItem className='ml-1'>
                       <Button
