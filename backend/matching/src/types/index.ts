@@ -58,6 +58,7 @@ export interface IQuestion {
   // description: string;
   // difficulty: string;
   // topic: string[];
+  attemptCount: number;
 }
 
 export interface IGetRandomQuestionPayload {
