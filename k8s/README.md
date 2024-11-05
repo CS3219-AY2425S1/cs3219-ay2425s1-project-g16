@@ -73,7 +73,7 @@
     kubectl -n peerprep get all
     ```
 
-    You should be able to see the Horizontal Pod AutoScaler scaling up the services in respond to 
+    You should be able to see the Horizontal Pod AutoScaler scaling up the services in respond to
     resource demand.
 
 3. Run <kbd>Ctrl</kbd>+<kbd>C</kbd> to interrupt and
@@ -185,8 +185,24 @@
       --num-nodes 1 \
       --min-nodes 1 \
       --max-nodes 25 \
+      --disk-size 20 \
       --region=asia-southeast1-c
     ```
+
+    - We configure the node pool using the above command to create a cluster with
+      a node pool having the following characteristics:
+        - Preemptible: To schedule cheaper pods that can be claimed back by GCloud to save
+          costs
+        - Machine Type: `e2-small`
+            - This provides a good balance between performance and cost.
+        - Autoscaling: This allows the node pool to resize automatically, allowing us
+          to scale our deployments without manually managing nodes
+        - Num Nodes (Initial Number of Nodes): 1. We let the cluster operate first, and scale
+          up if needed.
+        - Min Nodes: 1. This ensures our cluster is always up.
+        - Max Nodes: 25. This prevents our cluster from scaling too large.
+        - Disk Size: 20GB. This prevents our cluster from requesting more than the Google Cloud
+          quota of 500GB SSD, as the default is 100GB per node.
 
 5. Once the cluster has been created, run the commands below to configure `kubectl` and connect to the cluster:
 
