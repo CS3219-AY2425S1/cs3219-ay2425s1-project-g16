@@ -3,6 +3,7 @@ import {
   ArrowRightIcon,
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
+  PlusIcon,
 } from '@radix-ui/react-icons';
 import {
   ColumnDef,
@@ -15,6 +16,7 @@ import {
 } from '@tanstack/react-table';
 import { useState } from 'react';
 
+import { AdminEditForm } from '@/components/blocks/questions/admin-edit-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
@@ -33,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 interface QuestionTableProps<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
@@ -45,6 +48,8 @@ export function QuestionTable<TData, TValue>({
   data,
   isError,
 }: QuestionTableProps<TData, TValue>) {
+  const { isAdmin } = useAuthedRoute();
+  const [isAdminAddFormOpen, setIsAdminAddFormOpen] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 12,
@@ -106,6 +111,30 @@ export function QuestionTable<TData, TValue>({
           onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
           className='max-w-sm'
         />
+        {isAdmin && (
+          <>
+            <Button
+              onClick={() => setIsAdminAddFormOpen((open) => !open)}
+              className='ml-12 flex gap-2'
+              variant='outline'
+              size='sm'
+            >
+              <span>Add Question</span>
+              <PlusIcon />
+            </Button>
+            <AdminEditForm
+              mode='create'
+              isFormOpen={isAdminAddFormOpen}
+              setIsFormOpen={setIsAdminAddFormOpen}
+              questionDetails={{
+                title: '',
+                topic: [],
+                description: '',
+                difficulty: '',
+              }}
+            />
+          </>
+        )}
       </div>
       <div className='border-border rounded-md border'>
         <Table>

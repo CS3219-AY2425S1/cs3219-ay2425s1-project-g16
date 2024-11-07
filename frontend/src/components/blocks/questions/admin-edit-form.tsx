@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { type Dispatch, type FC, type SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -39,18 +39,21 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { adminAddQuestion, adminUpdateQuestion } from '@/services/question-service';
+import { useAuthedRoute } from '@/stores/auth-store';
 import type { IGetQuestionDetailsResponse } from '@/types/question-types';
 
 type AdminEditFormProps = {
   isFormOpen: boolean;
   setIsFormOpen: Dispatch<SetStateAction<boolean>>;
   questionDetails: IGetQuestionDetailsResponse['question'];
+  mode?: 'create' | 'update';
 };
 
 const formSchema = z.object({
   title: z.string().min(1),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']),
-  topic: z.string().min(1).array().min(1),
+  topics: z.string().min(1).array().min(1),
   description: z.string().min(1),
 });
 
@@ -58,24 +61,49 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
   questionDetails,
   isFormOpen,
   setIsFormOpen,
+  mode = 'update',
 }) => {
+  const { userId } = useAuthedRoute();
   const [addedTopic, setAddedTopic] = useState('');
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      ...questionDetails,
+      topics: questionDetails.topic,
+      description: questionDetails.description,
+      difficulty: questionDetails.difficulty as z.infer<typeof formSchema>['difficulty'],
+    },
+    mode: 'onSubmit',
+  });
+
+  const queryClient = useQueryClient();
   const {
     mutate: sendUpdate,
     isPending,
     isSuccess,
   } = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {},
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      ...questionDetails,
-      description: questionDetails.description,
-      difficulty: questionDetails.difficulty as z.infer<typeof formSchema>['difficulty'],
+    mutationFn: (values: z.infer<typeof formSchema>) => {
+      return mode === 'update'
+        ? adminUpdateQuestion({ ...values, questionId: Number.parseInt(questionDetails.id!) })
+        : adminAddQuestion(values);
     },
-    mode: 'onSubmit',
+    onSuccess: () => {
+      form.reset();
+
+      if (mode === 'update') {
+        queryClient.refetchQueries({
+          queryKey: ['qn', 'details', Number.parseInt(questionDetails.id!)],
+        });
+      } else {
+        queryClient.refetchQueries({
+          queryKey: ['questions', userId],
+        });
+      }
+
+      setTimeout(() => {
+        setIsFormOpen(false);
+      }, 500);
+    },
   });
 
   const onSubmit = (formValues: z.infer<typeof formSchema>) => {
@@ -83,10 +111,10 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
   };
 
   const addTopic = (topic: string) => {
-    const val = new Set(form.getValues('topic').map((v) => v.toLowerCase()));
+    const val = new Set(form.getValues('topics').map((v) => v.toLowerCase()));
     val.add(topic.toLowerCase());
     form.setValue(
-      'topic',
+      'topics',
       Array.from(val).map((v) => v.replace(/^[a-z]/, (c) => c.toUpperCase()))
     );
   };
@@ -96,7 +124,9 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className='border-border flex h-dvh w-dvw max-w-screen-lg flex-col'>
           <DialogHeader className=''>
-            <DialogTitle className='text-primary'>Edit Question Details</DialogTitle>
+            <DialogTitle className='text-primary'>
+              {mode === 'update' ? 'Edit Question Details' : 'Add a question'}
+            </DialogTitle>
           </DialogHeader>
           <DialogDescription className='h-full'>
             <Form {...form}>
@@ -148,7 +178,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                   />
                   <FormField
                     control={form.control}
-                    name='topic'
+                    name='topics'
                     render={({ field }) => (
                       <FormItem className='flex flex-col gap-1 sm:col-span-2'>
                         <div className='flex items-end gap-2'>
@@ -189,7 +219,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                                 className=''
                                 disabled={isPending}
                                 onClick={() => {
-                                  form.resetField('topic');
+                                  form.resetField('topics');
                                 }}
                                 size='sm'
                               >
@@ -211,7 +241,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                                       }
 
                                       form.setValue(
-                                        'topic',
+                                        'topics',
                                         field.value.filter((_value, idx) => idx !== index)
                                       );
                                     }}
@@ -257,7 +287,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                             <Markdown
                               rehypePlugins={[rehypeKatex]}
                               remarkPlugins={[remarkMath, remarkGfm]}
-                              className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground leading-normal'
+                              className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground prose-pre:bg-secondary prose-pre:text-secondary-foreground leading-normal'
                               components={{
                                 code: ({ children, className, ...rest }) => {
                                   return (

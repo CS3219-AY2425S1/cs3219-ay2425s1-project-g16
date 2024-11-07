@@ -99,7 +99,7 @@ export const QuestionDetails = ({
         <Markdown
           rehypePlugins={[rehypeKatex]}
           remarkPlugins={[remarkMath, remarkGfm]}
-          className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground leading-normal'
+          className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground prose-pre:bg-secondary prose-pre:text-secondary-foreground leading-normal'
           components={{
             code: ({ children, className, ...rest }) => {
               // const isCodeBlock = /language-(\w+)/.exec(className || '');
@@ -107,7 +107,7 @@ export const QuestionDetails = ({
               return (
                 <code
                   {...rest}
-                  className='bg-secondary text-secondary-foreground rounded px-1.5 py-1 font-mono'
+                  className='dark:bg-secondary dark:text-secondary-foreground rounded px-1.5 py-1 font-mono'
                 >
                   {children}
                 </code>

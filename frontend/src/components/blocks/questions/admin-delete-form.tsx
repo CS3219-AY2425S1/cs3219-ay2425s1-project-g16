@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { adminDeleteQuestion } from '@/services/question-service';
 
 type AdminDeleteFormProps = {
   isOpen: boolean;
@@ -28,7 +29,8 @@ export const AdminDeleteForm: FC<AdminDeleteFormProps> = ({ isOpen, setIsOpen, q
     isPending,
     isSuccess,
   } = useMutation({
-    mutationFn: async (questionId: number) => {
+    mutationFn: (questionId: number) => adminDeleteQuestion(questionId),
+    onSuccess: () => {
       setTimeout(() => {
         navigate('/');
       }, 1000);
