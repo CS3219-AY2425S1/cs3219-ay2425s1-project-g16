@@ -1,12 +1,15 @@
+import { Pencil1Icon } from '@radix-ui/react-icons';
 import Markdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
 import { Badge } from '@/components/ui/badge';
-import { CardContent,CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useAuthedRoute } from '@/stores/auth-store';
 import type { IGetQuestionDetailsResponse } from '@/types/question-types';
 
 export const QuestionDetails = ({
@@ -14,6 +17,7 @@ export const QuestionDetails = ({
 }: {
   questionDetails: IGetQuestionDetailsResponse['question'];
 }) => {
+  const { isAdmin } = useAuthedRoute();
   return (
     <ScrollArea className='h-full'>
       <CardHeader>
@@ -22,6 +26,12 @@ export const QuestionDetails = ({
             <CardTitle className='text-2xl'>
               {questionDetails.id}.&nbsp;{questionDetails.title}
             </CardTitle>
+            {isAdmin && (
+              <Button className='flex gap-1 uppercase'>
+                <Pencil1Icon />
+                <span>Edit</span>
+              </Button>
+            )}
           </div>
           <div className='flex flex-wrap items-center gap-1'>
             <Badge
