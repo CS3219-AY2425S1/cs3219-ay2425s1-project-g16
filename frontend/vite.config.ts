@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/user-service': {
           target: env.VITE_USER_SERVICE,
-          rewrite: (path: string) => path?.replace && path.replace(/^\/user-service/, ''),
+          rewrite: (path) => path?.replace && path.replace(/^\/user-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         },
         '/question-service': {
           target: env.VITE_QUESTION_SERVICE,
-          rewrite: (path: string) => path?.replace && path.replace(/^\/question-service/, ''),
+          rewrite: (path) => path?.replace && path.replace(/^\/question-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
         },
         '/collaboration-service': {
           target: env.VITE_COLLAB_SERVICE,
-          rewrite: (path: string) => path?.replace && path.replace(/^\/collaboration-service/, ''),
+          rewrite: (path) => path?.replace && path.replace(/^\/collaboration-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
         },
         '/matching-service': {
           target: env.VITE_MATCHING_SERVICE,
-          rewrite: (path: string) => path?.replace && path.replace(/^\/matching-service/, ''),
+          rewrite: (path) => path?.replace && path.replace(/^\/matching-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
         },
         '/collab-ws': {
           target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
-          rewrite: (path: string) => path?.replace && path.replace(/\/collab-ws/, ''),
+          rewrite: (path) => path?.replace && path.replace(/\/collab-ws/, ''),
           ws: true,
         },
         '/matching-socket/': {
