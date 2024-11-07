@@ -54,7 +54,7 @@ export default defineConfig(({ mode }) => {
           },
         },
         '/collab-ws': {
-          target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
+          target: `${(env.VITE_COLLAB_SERVICE ?? 'http://collaboration-service').replace('http', 'ws')}`,
           rewrite: (path) => path?.replace && path.replace(/\/collab-ws/, ''),
           ws: true,
         },
