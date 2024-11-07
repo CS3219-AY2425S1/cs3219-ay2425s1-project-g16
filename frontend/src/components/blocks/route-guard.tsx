@@ -11,10 +11,9 @@ import {
 
 import { ROUTES, UNAUTHED_ROUTES } from '@/lib/routes';
 import { checkIsAuthed } from '@/services/user-service';
-import { AuthStoreProvider } from '@/stores/auth-store';
+import { useAuthedRoute } from '@/stores/auth-store';
 
 import { Loading } from './loading';
-import NavBar from './nav-bar';
 
 export const loader =
   (queryClient: QueryClient) =>
@@ -50,26 +49,33 @@ export const RouteGuard = () => {
       <Await resolve={data.payload}>
         {({ authedPayload, isAuthedRoute, path: _p }) => {
           const [isLoading, setIsLoading] = useState(true);
+          const hooks = useAuthedRoute();
           useEffect(() => {
             if (authedPayload.isAuthed !== isAuthedRoute) {
               navigate(isAuthedRoute ? ROUTES.LOGIN : ROUTES.HOME);
             }
 
+            const { isAdmin, email, username, userId } = authedPayload;
+
+            if (isAdmin && hooks.setIsAdmin) {
+              hooks.setIsAdmin(true);
+            }
+
+            if (email && hooks.setEmail) {
+              hooks.setEmail(email);
+            }
+
+            if (username && hooks.setUsername) {
+              hooks.setUsername(username);
+            }
+
+            if (userId && hooks.setUserId) {
+              hooks.setUserId(userId);
+            }
+
             setIsLoading(false);
           }, [authedPayload]);
-          return (
-            <AuthStoreProvider
-              value={{
-                userId: authedPayload.userId ?? '',
-                username: authedPayload.username ?? '',
-                email: authedPayload.email ?? '',
-                isAdmin: authedPayload.isAdmin ?? undefined,
-              }}
-            >
-              <NavBar />
-              <main className='flex flex-1'>{isLoading ? <Loading /> : <Outlet />}</main>
-            </AuthStoreProvider>
-          );
+          return isLoading ? <Loading /> : <Outlet />;
         }}
       </Await>
     </Suspense>
