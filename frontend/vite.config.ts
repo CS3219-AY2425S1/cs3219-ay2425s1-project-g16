@@ -7,9 +7,6 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   return {
-    define: {
-      'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
-    },
     plugins: [react()],
     build: {
       outDir: 'build',
@@ -26,7 +23,8 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/user-service': {
           target: env.VITE_USER_SERVICE,
-          rewrite: (path: string) => path.replace(/^\/user-service/, ''),
+          rewrite: (path: string) =>
+            String(path).replace && String(path).replace(/^\/user-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -34,7 +32,8 @@ export default defineConfig(({ mode }) => {
         },
         '/question-service': {
           target: env.VITE_QUESTION_SERVICE,
-          rewrite: (path: string) => path?.replace(/^\/question-service/, ''),
+          rewrite: (path: string) =>
+            String(path).replace && String(path).replace(/^\/question-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -42,7 +41,8 @@ export default defineConfig(({ mode }) => {
         },
         '/collaboration-service': {
           target: env.VITE_COLLAB_SERVICE,
-          rewrite: (path: string) => path?.replace(/^\/collaboration-service/, ''),
+          rewrite: (path: string) =>
+            String(path).replace && String(path).replace(/^\/collaboration-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -50,7 +50,8 @@ export default defineConfig(({ mode }) => {
         },
         '/matching-service': {
           target: env.VITE_MATCHING_SERVICE,
-          rewrite: (path: string) => path?.replace(/^\/matching-service/, ''),
+          rewrite: (path: string) =>
+            String(path).replace && String(path).replace(/^\/matching-service/, ''),
           changeOrigin: true,
           cookiePathRewrite: {
             '*': '/',
@@ -58,7 +59,8 @@ export default defineConfig(({ mode }) => {
         },
         '/collab-ws': {
           target: `${env.VITE_COLLAB_SERVICE.replace('http', 'ws')}`,
-          rewrite: (path: string) => path?.replace(/\/collab-ws/, ''),
+          rewrite: (path: string) =>
+            String(path).replace && String(path).replace(/\/collab-ws/, ''),
           ws: true,
         },
         '/matching-socket/': {

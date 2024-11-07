@@ -27,7 +27,7 @@ export const QuestionDetails = ({
               {questionDetails.id}.&nbsp;{questionDetails.title}
             </CardTitle>
             {isAdmin && (
-              <Button className='flex gap-1 uppercase'>
+              <Button className='min-h-none ml-8 flex !h-6 gap-1 rounded-md px-2' size='sm'>
                 <Pencil1Icon />
                 <span>Edit</span>
               </Button>
