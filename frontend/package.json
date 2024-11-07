@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "env-cmd -f .env.local vite",
-    "build": "tsc -b && rm -rf **/vite.config.ts.timestamp-* && vite build",
+    "build": "tsc -b && vite build -d --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview --port 5173 --host 0.0.0.0"
   },
