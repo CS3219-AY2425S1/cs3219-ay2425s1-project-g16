@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Cross2Icon, DotsVerticalIcon, Pencil1Icon, PlusIcon } from '@radix-ui/react-icons';
+import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
-import { type FC,useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { type Dispatch, type FC, type SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Markdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
@@ -19,12 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Form,
   FormControl,
@@ -47,6 +42,8 @@ import { Textarea } from '@/components/ui/textarea';
 import type { IGetQuestionDetailsResponse } from '@/types/question-types';
 
 type AdminEditFormProps = {
+  isFormOpen: boolean;
+  setIsFormOpen: Dispatch<SetStateAction<boolean>>;
   questionDetails: IGetQuestionDetailsResponse['question'];
 };
 
@@ -57,10 +54,19 @@ const formSchema = z.object({
   description: z.string().min(1),
 });
 
-export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
+export const AdminEditForm: FC<AdminEditFormProps> = ({
+  questionDetails,
+  isFormOpen,
+  setIsFormOpen,
+}) => {
   const [addedTopic, setAddedTopic] = useState('');
-  const { mutate: _sendUpdate, isPending } = useMutation({});
+  const {
+    mutate: sendUpdate,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {},
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -72,7 +78,9 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
     mode: 'onSubmit',
   });
 
-  const onSubmit = (_formValues: z.infer<typeof formSchema>) => {};
+  const onSubmit = (formValues: z.infer<typeof formSchema>) => {
+    sendUpdate(formValues);
+  };
 
   const addTopic = (topic: string) => {
     const val = new Set(form.getValues('topic').map((v) => v.toLowerCase()));
@@ -85,26 +93,6 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className='min-h-none ml-auto flex !h-6 items-center gap-2 rounded-lg px-2'
-            size='sm'
-          >
-            <span>Actions</span>
-            <DotsVerticalIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className='border-border'>
-          <DropdownMenuItem
-            onClick={() => setIsFormOpen((isOpen) => !isOpen)}
-            className='flex w-full justify-between gap-2 hover:cursor-pointer'
-          >
-            <span>Edit</span>
-            <Pencil1Icon />
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className='border-border flex h-dvh w-dvw max-w-screen-lg flex-col'>
           <DialogHeader className=''>
@@ -142,10 +130,10 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
                             value={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className='focus:ring-secondary-foreground/50'>
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className='border-secondary-foreground/50'>
                               {(['Easy', 'Medium', 'Hard'] as const).map((value, index) => (
                                 <SelectItem key={index} value={value}>
                                   {value}
@@ -201,7 +189,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
                                 className=''
                                 disabled={isPending}
                                 onClick={() => {
-                                  form.setValue('topic', questionDetails.topic);
+                                  form.resetField('topic');
                                 }}
                                 size='sm'
                               >
@@ -297,10 +285,30 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({ questionDetails }) => {
           </DialogDescription>
           <DialogFooter>
             <div className='flex w-full items-center justify-between'>
-              <Button variant='secondary' size='sm'>
+              <Button
+                disabled={isPending || isSuccess}
+                variant='secondary'
+                size='sm'
+                onClick={() => {
+                  form.reset();
+                  setIsFormOpen(false);
+                }}
+              >
                 Cancel
               </Button>
-              <Button size='sm'>Save Changes</Button>
+              <Button
+                disabled={isPending || isSuccess}
+                onClick={() => {
+                  onSubmit(form.getValues());
+                }}
+                size='sm'
+                className='flex gap-2'
+              >
+                <span>
+                  {isPending ? 'Submitting' : isSuccess ? 'Updated! Closing form' : 'Save Changes'}
+                </span>
+                {isPending && <Loader2 className='size-4 animate-spin' />}
+              </Button>
             </div>
           </DialogFooter>
         </DialogContent>
