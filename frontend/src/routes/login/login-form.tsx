@@ -46,7 +46,13 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type='password' disabled={isPending} placeholder='••••••••' {...field} />
+                    <Input
+                      type='password'
+                      autoComplete='new-password'
+                      disabled={isPending}
+                      placeholder='••••••••'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                   <div className='flex w-full'>

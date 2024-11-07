@@ -58,7 +58,12 @@ export const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input disabled={isDisabled} placeholder='johnSmith01' {...field} />
+                    <Input
+                      disabled={isDisabled}
+                      autoComplete='username'
+                      placeholder='johnSmith01'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -92,6 +97,7 @@ export const SignUpForm = () => {
                     <Input
                       type='password'
                       disabled={isDisabled}
+                      autoComplete='new-password'
                       placeholder='••••••••'
                       {...field}
                     />
@@ -110,6 +116,7 @@ export const SignUpForm = () => {
                     <Input
                       type='password'
                       disabled={isDisabled}
+                      autoComplete='new-password'
                       placeholder='••••••••'
                       {...field}
                     />

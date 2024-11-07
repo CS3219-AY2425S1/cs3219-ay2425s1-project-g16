@@ -14,6 +14,7 @@ import { checkIsAuthed } from '@/services/user-service';
 import { AuthStoreProvider } from '@/stores/auth-store';
 
 import { Loading } from './loading';
+import NavBar from './nav-bar';
 
 export const loader =
   (queryClient: QueryClient) =>
@@ -61,9 +62,12 @@ export const RouteGuard = () => {
               value={{
                 userId: authedPayload.userId ?? '',
                 username: authedPayload.username ?? '',
+                email: authedPayload.email ?? '',
+                isAdmin: authedPayload.isAdmin ?? undefined,
               }}
             >
-              {isLoading ? <Loading /> : <Outlet />}
+              <NavBar />
+              <main className='flex flex-1'>{isLoading ? <Loading /> : <Outlet />}</main>
             </AuthStoreProvider>
           );
         }}

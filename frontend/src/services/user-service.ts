@@ -44,6 +44,8 @@ export const checkIsAuthed = (param?: { signal: AbortSignal }) => {
           expiresAt: response.data ? new Date(response.data.expiresAt) : new Date(),
           userId: response.data ? response.data.userId : undefined,
           username: response.data ? response.data.userName : undefined,
+          email: response.data ? response.data.email : undefined,
+          isAdmin: response.data?.isAdmin ?? undefined,
         };
       }
 

@@ -1,16 +1,21 @@
 import { createContext, useContext } from 'react';
 
-const AuthStore = createContext<{ userId: string; username: string }>({
+type AuthStoreType = {
+  userId: string;
+  username: string;
+  email: string;
+  isAdmin?: boolean;
+};
+
+const AuthStore = createContext<AuthStoreType>({
   userId: '',
   username: '',
+  email: '',
 });
 
 export const AuthStoreProvider = AuthStore.Provider;
 
 export const useAuthedRoute = () => {
-  const { userId, username } = useContext(AuthStore);
-  return {
-    userId,
-    username,
-  };
+  const data = useContext(AuthStore);
+  return data;
 };

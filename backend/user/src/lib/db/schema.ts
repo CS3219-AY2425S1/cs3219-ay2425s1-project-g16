@@ -1,4 +1,13 @@
-import { integer, pgEnum, pgTable, smallint, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  integer,
+  pgEnum,
+  pgTable,
+  smallint,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core';
 
 // Define the user table
 export const users = pgTable('users', {
@@ -11,6 +20,7 @@ export const users = pgTable('users', {
   failedAttempts: smallint('failed_attempts').default(0), // Failed counts
   unlockTime: timestamp('unlock_time', { precision: 6, withTimezone: true }), // If failed counts > limit, block all attempts until this time.
   attemptedQuestions: integer('attempted_questions').array(),
+  isAdmin: boolean('is_admin').default(false),
 });
 
 export const actionEnum = pgEnum('action', ['SEED']);
