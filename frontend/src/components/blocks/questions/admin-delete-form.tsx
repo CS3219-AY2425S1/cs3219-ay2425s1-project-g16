@@ -33,7 +33,7 @@ export const AdminDeleteForm: FC<AdminDeleteFormProps> = ({ isOpen, setIsOpen, q
     onSuccess: () => {
       setTimeout(() => {
         navigate('/');
-      }, 1000);
+      }, 700);
     },
   });
 

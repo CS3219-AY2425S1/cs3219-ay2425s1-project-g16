@@ -88,8 +88,6 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
         : adminAddQuestion(values);
     },
     onSuccess: () => {
-      form.reset();
-
       if (mode === 'update') {
         queryClient.refetchQueries({
           queryKey: ['qn', 'details', Number.parseInt(questionDetails.id!)],
@@ -101,6 +99,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
       }
 
       setTimeout(() => {
+        form.reset();
         setIsFormOpen(false);
       }, 500);
     },
