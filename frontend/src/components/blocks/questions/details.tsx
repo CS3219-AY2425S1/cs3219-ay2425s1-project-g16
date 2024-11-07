@@ -1,16 +1,16 @@
-import { Pencil1Icon } from '@radix-ui/react-icons';
 import Markdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useAuthedRoute } from '@/stores/auth-store';
 import type { IGetQuestionDetailsResponse } from '@/types/question-types';
+
+import { AdminEditForm } from './admin-edit-form';
 
 export const QuestionDetails = ({
   questionDetails,
@@ -26,12 +26,7 @@ export const QuestionDetails = ({
             <CardTitle className='text-2xl'>
               {questionDetails.id}.&nbsp;{questionDetails.title}
             </CardTitle>
-            {isAdmin && (
-              <Button className='min-h-none ml-8 flex !h-6 gap-1 rounded-md px-2' size='sm'>
-                <Pencil1Icon />
-                <span>Edit</span>
-              </Button>
-            )}
+            {isAdmin && <AdminEditForm questionDetails={questionDetails} />}
           </div>
           <div className='flex flex-wrap items-center gap-1'>
             <Badge
