@@ -25,7 +25,7 @@ export const CodeViewer: FC<ICodeProps> = ({ code, language }) => {
   };
 
   return (
-    <div className='flex size-full flex-col text-clip rounded-md'>
+    <div className='flex size-full flex-col !overflow-clip rounded-lg'>
       <div className='bg-muted-foreground text-muted dark:bg-muted dark:text-muted-foreground flex w-full items-center justify-between px-3 py-2'>
         <span className='text-sm font-medium'>{language}</span>
         <Button
@@ -52,6 +52,7 @@ export const CodeViewer: FC<ICodeProps> = ({ code, language }) => {
           PreTag='div'
           style={oneDark}
           language={language}
+          // showLineNumbers
         >
           {code}
         </SyntaxHighlighter>

@@ -89,12 +89,6 @@ export function QuestionAttemptsTable<TValue>({
             noOptionsText='None of the available languages match your search'
           />
         </div>
-        {/* <Input
-          placeholder='Search questions...'
-          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-          onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
-          className='max-w-sm'
-        /> */}
       </div>
       <div className='border-border sticky top-0 rounded-t-md border'>
         <Table>
