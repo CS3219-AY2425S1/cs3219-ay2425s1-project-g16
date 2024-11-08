@@ -28,11 +28,10 @@ export const InterviewRoomContainer = () => {
   const { userId } = useAuthedRoute();
 
   const safeRoomId = roomId ?? '';
-  const safeUserId = userId ?? '';
 
   const { data: authResult, error } = useSuspenseQuery({
-    queryKey: ['checkRoomAuthorization', safeRoomId, safeUserId],
-    queryFn: () => checkRoomAuthorization(safeRoomId!, safeUserId!),
+    queryKey: ['checkRoomAuthorization', safeRoomId, userId, questionId],
+    queryFn: () => checkRoomAuthorization(safeRoomId!, userId!, questionId),
   });
 
   if (error || !authResult?.isAuthed || !roomId) {

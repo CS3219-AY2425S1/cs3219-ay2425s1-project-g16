@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Migrate Services
-migrate_services=("question" "user" "chat")
+migrate_services=("question" "user" "chat" "collaboration")
 for service in "${migrate_services[@]}"; do
   cd "backend/$service"
   npm run db:migrate

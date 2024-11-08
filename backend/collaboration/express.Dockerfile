@@ -15,6 +15,12 @@ RUN npm ci --omit=dev
 
 RUN sed -i 's|./ws|ws|g' ./dist/ws.js
 
+# For migration
+RUN npm install tsx drizzle-kit
+COPY drizzle ./drizzle
+COPY src/lib/db/ ./src/lib/db
+COPY src/config.ts ./src
+COPY tsconfig.json .
 COPY entrypoint.sh .
 
 ARG port

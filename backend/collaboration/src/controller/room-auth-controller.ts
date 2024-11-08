@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -7,8 +7,9 @@ import { db, rooms } from '@/lib/db';
 export async function authCheck(req: Request, res: Response) {
   const roomId = req.query.roomId as string | undefined;
   const userId = req.query.userId as string | undefined;
+  const questionId = req.query.questionId as string | undefined;
 
-  if (!roomId || !userId) {
+  if (!roomId || !userId || !questionId) {
     return {
       code: StatusCodes.UNPROCESSABLE_ENTITY,
       error: {
@@ -18,7 +19,11 @@ export async function authCheck(req: Request, res: Response) {
   }
 
   try {
-    const room = await db.select().from(rooms).where(eq(rooms.roomId, roomId)).limit(1);
+    const room = await db
+      .select()
+      .from(rooms)
+      .where(sql`${rooms.roomId} = ${roomId} and ${rooms.questionId} = ${questionId}`)
+      .limit(1);
 
     if (room.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
