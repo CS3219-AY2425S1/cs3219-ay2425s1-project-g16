@@ -14,3 +14,9 @@ export type IGetAuthRoomPayload = {
   roomId: string;
   userId: string;
 };
+
+export type IGetRoomsPayload = {
+  userId: string;
+  offset?: number;
+  limit?: number;
+};

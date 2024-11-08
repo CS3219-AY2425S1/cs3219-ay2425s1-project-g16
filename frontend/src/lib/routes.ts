@@ -8,6 +8,7 @@ export const ROUTES = {
   QUESTION_DETAILS: '/questions/:questionId',
 
   MATCH: '/match',
+  INTERVIEWS: '/interviews',
   INTERVIEW: '/interview/:roomId',
 };
 
@@ -28,6 +29,12 @@ const TOP_LEVEL_AUTHED_ROUTES = {
     {
       path: ROUTES.INTERVIEW,
       title: 'Interview',
+    },
+  ],
+  [ROUTES.INTERVIEWS]: [
+    {
+      path: ROUTES.INTERVIEWS,
+      title: 'Interviews',
     },
   ],
 };

@@ -26,6 +26,9 @@ const NavBar = observer(() => {
             <Button variant='ghost' asChild>
               <Link to={ROUTES.QUESTIONS}>Questions</Link>
             </Button>
+            <Button variant='ghost' asChild>
+              <Link to={ROUTES.INTERVIEWS}>Interviews</Link>
+            </Button>
           </>
         )}
         <div className='ml-auto flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4'>

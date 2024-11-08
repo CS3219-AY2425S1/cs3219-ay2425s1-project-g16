@@ -5,6 +5,7 @@ import { RootLayout } from '@/components/blocks/root-layout';
 import { loader as routeGuardLoader, RouteGuard } from '@/components/blocks/route-guard';
 import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
+import { InterviewsPage } from '@/routes/interview';
 import { InterviewRoomContainer, loader as interviewRoomLoader } from '@/routes/interview/[room]';
 import { Login } from '@/routes/login';
 import { loader as topicsLoader } from '@/routes/match/logic';
@@ -43,6 +44,10 @@ export const router = createBrowserRouter([
                 path: ROUTES.QUESTION_DETAILS,
                 loader: questionDetailsLoader(queryClient),
                 element: <QuestionDetailsPage />,
+              },
+              {
+                path: ROUTES.INTERVIEWS,
+                element: <InterviewsPage />,
               },
               {
                 path: ROUTES.INTERVIEW,
