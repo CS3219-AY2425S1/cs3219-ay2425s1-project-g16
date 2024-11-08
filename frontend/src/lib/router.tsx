@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: ROUTES.INTERVIEW,
-                loader: interviewRoomLoader(queryClient),
+                loader: interviewRoomLoader,
                 element: <InterviewRoomContainer />,
               },
               {

@@ -9,3 +9,8 @@ export type IGetCollabRoomPayload = {
 export type IGetCollabRoomResponse = IServiceResponse<{
   roomName: string;
 }>;
+
+export type IGetAuthRoomPayload = {
+  roomId: string;
+  userId: string;
+};

@@ -1,55 +1,42 @@
-import { sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { db, rooms } from '@/lib/db';
+import { logger } from '@/lib/utils';
+import { roomAuthService } from '@/service/get/room-auth-service';
 
-export async function authCheck(req: Request, res: Response) {
-  const roomId = req.query.roomId as string | undefined;
-  const userId = req.query.userId as string | undefined;
-  const questionId = req.query.questionId as string | undefined;
+type QueryParams = {
+  roomId: string;
+  userId: string;
+};
 
-  if (!roomId || !userId || !questionId) {
-    return {
-      code: StatusCodes.UNPROCESSABLE_ENTITY,
-      error: {
-        message: 'Malformed',
-      },
-    };
+// Returns the questionId if valid.
+export async function authCheck(
+  req: Request<unknown, unknown, unknown, Partial<QueryParams>>,
+  res: Response
+) {
+  const { roomId, userId } = req.query;
+
+  if (!roomId || !userId) {
+    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json('Malformed request');
   }
 
   try {
-    const room = await db
-      .select()
-      .from(rooms)
-      .where(sql`${rooms.roomId} = ${roomId} and ${rooms.questionId} = ${questionId}`)
-      .limit(1);
-
-    if (room.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        error: {
-          message: 'Room not found',
-        },
-      });
-    }
-
-    const { userId1, userId2 } = room[0];
-
-    if (userId !== userId1 && userId !== userId2) {
-      return res.status(StatusCodes.FORBIDDEN).json({
-        code: StatusCodes.FORBIDDEN,
-        error: { message: 'User is not authorized to access this room' },
-      });
-    }
-
-    return res.status(StatusCodes.OK).json({
-      code: StatusCodes.OK,
-      data: { roomId },
+    const response = await roomAuthService({
+      roomId,
+      userId,
     });
+
+    if (response.data) {
+      return res.status(response.code).json(response.data);
+    }
+
+    return res
+      .status(response.code)
+      .json({ error: response.error || { message: 'An error occurred.' } });
   } catch (error) {
-    console.error('Error authenticating room:', error);
+    const { name, stack, cause, message } = error as Error;
+    logger.error('Error authenticating room: ' + JSON.stringify({ name, stack, message, cause }));
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      code: StatusCodes.INTERNAL_SERVER_ERROR,
       error: { message: 'An error occurred while authenticating the room' },
     });
   }

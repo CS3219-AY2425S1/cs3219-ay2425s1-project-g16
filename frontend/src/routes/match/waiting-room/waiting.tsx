@@ -128,12 +128,11 @@ export const WaitingRoom = ({ socketPort, setIsModalOpen }: IWaitingRoomProps) =
       console.log(`Received match: ${JSON.stringify(data)}`);
 
       const roomId = data?.roomId;
-      const questionId = data?.questionId;
       countdownRef.current = 0;
       clearInterval(timerRef.current!);
 
       socket.close();
-      navigate(`${ROUTES.INTERVIEW.replace(':roomId', roomId)}?questionId=${questionId}`);
+      navigate(`${ROUTES.INTERVIEW.replace(':roomId', roomId)}`);
     });
 
     socket.on(MATCHING_EVENT.FAILED, () => {
