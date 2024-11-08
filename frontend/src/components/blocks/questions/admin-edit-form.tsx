@@ -117,7 +117,11 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
   const difficultiesQuery = useQuery(getDifficultiesQueryConfig());
 
   const onSubmit = (formValues: z.infer<typeof formSchema>) => {
-    sendUpdate(formValues);
+    const parsed = formSchema.safeParse(formValues);
+
+    if (parsed.success) {
+      sendUpdate(parsed.data);
+    }
   };
 
   return (
@@ -200,6 +204,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                               }))}
                               chosenOptions={field.value}
                               setChosenOptions={(value: Array<string>) => {
+                                form.clearErrors('topics');
                                 form.setValue('topics', value);
                               }}
                             />
@@ -326,7 +331,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                   <Button
                     disabled={isPending || isSuccess}
                     onClick={() => {
-                      onSubmit(form.getValues());
+                      form.handleSubmit(onSubmit);
                     }}
                     size='sm'
                     className='flex gap-2'
@@ -335,7 +340,7 @@ export const AdminEditForm: FC<AdminEditFormProps> = ({
                       {isPending
                         ? 'Submitting'
                         : isSuccess
-                          ? 'Updated! Closing form'
+                          ? `${mode === 'create' ? 'Added' : 'Updated'}! Closing form...`
                           : 'Save Changes'}
                     </span>
                     {isPending && <Loader2 className='size-4 animate-spin' />}

@@ -118,8 +118,9 @@ export const ComboboxExternal = React.forwardRef<
   const [isOpen, setIsOpen] = React.useState(false);
   const [inputVal, setInputVal] = React.useState('');
 
-  const onAddNewOption = () => {
-    const opt = inputVal.replace(/^[a-zA-Z]/, (c) => c.toUpperCase());
+  const onAddNewOption = (newOpt?: string) => {
+    const toAdd = newOpt ?? inputVal;
+    const opt = toAdd.replace(/^[a-zA-Z]/, (c) => c.toUpperCase());
 
     if (!chosenOptions.includes(opt)) {
       setChosenOptions([...chosenOptions, opt]);
@@ -149,17 +150,12 @@ export const ComboboxExternal = React.forwardRef<
             onValueChange={setInputVal}
             placeholder={`Search or add ${itemName}...`}
             className='h-9'
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                onAddNewOption();
-              }
-            }}
           />
           <CommandList>
             <CommandEmpty
+              autoFocus
               className='hover:bg-secondary hover:text-secondary-foreground p-3 text-sm hover:cursor-pointer'
-              onClick={onAddNewOption}
+              onClick={() => onAddNewOption()}
             >
               Add {`"${inputVal}"`}
             </CommandEmpty>

@@ -39,15 +39,17 @@ export const AdminDeleteForm: FC<AdminDeleteFormProps> = ({ isOpen, setIsOpen, q
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogContent>
+      <AlertDialogContent className='border-border'>
         <AlertDialogHeader>
-          <AlertDialogTitle className='flex'>
-            Are you sure you want to delete question:&nbsp;`<pre>{questionId}</pre>`?
+          <AlertDialogTitle className='text-primary flex'>
+            Are you sure you want to delete question:&nbsp;<pre>{questionId}</pre>?
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription />
         <AlertDialogFooter className='flex w-full justify-between'>
-          <AlertDialogCancel disabled={isPending || isSuccess}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className='text-primary' disabled={isPending || isSuccess}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={(event) => {
               event.preventDefault();
