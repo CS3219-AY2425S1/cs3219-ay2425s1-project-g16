@@ -31,7 +31,15 @@ export const MarkdownComponent = ({
         code({ children, className, ...rest }) {
           const [copyCodeText, setCopyCodeText] = useState('Copy Code');
 
+          const match = /language-(\w+)/.exec(className || '');
+
           const onCopy = (code: string) => {
+            const language = match?.[1];
+
+            if (language) {
+              localStorage.setItem('ai-asst-lang', language);
+            }
+
             navigator.clipboard.writeText(code);
             setCopyCodeText('Copied!');
             setTimeout(() => {
@@ -39,7 +47,6 @@ export const MarkdownComponent = ({
             }, 3000);
           };
 
-          const match = /language-(\w+)/.exec(className || '');
           return match ? (
             <div className='flex flex-col'>
               <div className='inline-flex translate-y-[10px] items-center justify-between rounded-t-sm bg-gray-700 p-1 text-sm'>

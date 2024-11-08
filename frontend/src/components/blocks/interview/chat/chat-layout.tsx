@@ -110,15 +110,15 @@ export const ChatLayout = ({
                   <Trash2 className='size-4' />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className='border-border'>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Clear Chat History</AlertDialogTitle>
+                  <AlertDialogTitle className='text-primary'>Clear Chat History</AlertDialogTitle>
                   <AlertDialogDescription>
                     Are you sure you want to clear the chat history? This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel className='text-primary'>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={onClearHistory}>Clear History</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -65,6 +65,9 @@ const config = {
               'code::after': {
                 content: 'none',
               },
+              '.contains-task-list': {
+                'list-style-type': 'none',
+              },
             }
           }
         }

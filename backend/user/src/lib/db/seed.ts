@@ -1,10 +1,10 @@
-import { eq } from 'drizzle-orm';
+import { eq, InferInsertModel } from 'drizzle-orm';
 
 import { generatePasswordHash } from '@/lib/passwords';
 
 import { admin as adminTable, db, users as usersTable } from '.';
 
-const TEST_USER_CREDENTIALS = [
+const TEST_USER_CREDENTIALS: Array<InferInsertModel<typeof usersTable>> = [
   {
     username: 'testuser01',
     email: 'test_user_01@email.com',
@@ -18,6 +18,14 @@ const TEST_USER_CREDENTIALS = [
     firstName: 'test',
     lastName: 'user02',
     password: '123456789', // For local testing purposes
+  },
+  {
+    username: 'adminuser01',
+    email: 'admin_user@email.com',
+    firstName: 'admin',
+    lastName: 'user01',
+    password: 'IamPeerprepAdmin!9',
+    isAdmin: true,
   },
 ];
 

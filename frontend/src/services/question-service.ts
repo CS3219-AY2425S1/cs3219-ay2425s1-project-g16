@@ -18,6 +18,14 @@ const QUESTION_SERVICE_ROUTES = {
   GET_DIFFICULTIES: '/questions/difficulties',
   POST_ADD_ATTEMPT: '/questions/newAttempt',
   POST_GET_ATTEMPTS: '/questions/attempts',
+
+  // Question CRUD
+  /* POST */
+  ADD_QUESTION: '/questions/create',
+  /* PUT */
+  UPDATE_QUESTION: '/questions/<questionId>',
+  /* DELETE */
+  DELETE_QUESTION: '/questions/<questionId>',
 };
 
 export const getQuestionDetails = (questionId: number): Promise<IGetQuestionDetailsResponse> => {
@@ -82,4 +90,34 @@ export const getQuestionAttempts = (
   return questionApiClient
     .post(QUESTION_SERVICE_ROUTES.POST_GET_ATTEMPTS, { ...params, limit: 10 })
     .then((res) => res.data as IPostGetQuestionAttemptsResponse);
+};
+
+export const adminAddQuestion = (values: {
+  title: string;
+  difficulty: string;
+  description: string;
+  topics: Array<string>;
+}) => {
+  return questionApiClient
+    .post(QUESTION_SERVICE_ROUTES.ADD_QUESTION, values)
+    .then((res) => res.data as { message?: string });
+};
+
+export const adminUpdateQuestion = (values: {
+  questionId: number;
+  title: string;
+  difficulty: string;
+  description: string;
+  topics: Array<string>;
+}) => {
+  const { questionId, ...rest } = values;
+  return questionApiClient
+    .put(QUESTION_SERVICE_ROUTES.UPDATE_QUESTION.replace(/<questionId>/, String(questionId)), rest)
+    .then((res) => res.data as { message?: string });
+};
+
+export const adminDeleteQuestion = (questionId: number) => {
+  return questionApiClient
+    .delete(QUESTION_SERVICE_ROUTES.DELETE_QUESTION.replace(/<questionId>/, String(questionId)))
+    .then((res) => res.data as { message?: string });
 };

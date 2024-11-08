@@ -21,7 +21,7 @@ type Option = {
   value: string;
 };
 
-type ComboboxProps = {
+type ComboboxMultiProps = {
   options: Array<Option>;
   placeholderText: string;
   noOptionsText: string;
@@ -30,7 +30,7 @@ type ComboboxProps = {
 
 export const ComboboxMulti = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & ComboboxProps
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & ComboboxMultiProps
 >(({ className, options, placeholderText, noOptionsText, setValuesCallback, ...props }, ref) => {
   const [open, setOpen] = React.useState(false);
   const [selectedValues, setSelectedValues] = React.useState<Array<string>>([]);
@@ -91,6 +91,97 @@ export const ComboboxMulti = React.forwardRef<
                     )}
                   />
                   {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+});
+
+type ComboboxExternalProps = {
+  options: Array<{
+    value: string;
+    label: string;
+  }>;
+  itemName: string;
+  chosenOptions: Array<string>;
+  setChosenOptions: (values: Array<string>) => void;
+};
+
+export const ComboboxExternal = React.forwardRef<
+  React.ElementRef<typeof PopoverPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & ComboboxExternalProps
+>(({ className, itemName, options, chosenOptions, setChosenOptions, ...props }, ref) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [inputVal, setInputVal] = React.useState('');
+
+  const onAddNewOption = (newOpt?: string) => {
+    const toAdd = newOpt ?? inputVal;
+    const opt = toAdd.replace(/^[a-zA-Z]/, (c) => c.toUpperCase());
+
+    if (!chosenOptions.includes(opt)) {
+      setChosenOptions([...chosenOptions, opt]);
+    }
+
+    setInputVal('');
+    setIsOpen(false);
+  };
+
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant='outline'
+          role='combobox'
+          aria-expanded={isOpen}
+          className='w-[200px] justify-between'
+        >
+          <span>Select {itemName}...</span>
+          <ChevronsUpDown className='opacity-50' />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent ref={ref} {...props} className={cn('w-[200px] p-0', className)}>
+        <Command>
+          <CommandInput
+            value={inputVal}
+            onValueChange={setInputVal}
+            placeholder={`Search or add ${itemName}...`}
+            className='h-9'
+          />
+          <CommandList>
+            <CommandEmpty
+              autoFocus
+              className='hover:bg-secondary hover:text-secondary-foreground p-3 text-sm hover:cursor-pointer'
+              onClick={() => onAddNewOption()}
+            >
+              Add {`"${inputVal}"`}
+            </CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  className='hover:cursor-pointer'
+                  key={option.value}
+                  value={option.value}
+                  onSelect={(currentValue) => {
+                    if (chosenOptions.includes(currentValue)) {
+                      setChosenOptions(chosenOptions.filter((v) => v !== currentValue));
+                    } else {
+                      setChosenOptions([...chosenOptions, currentValue]);
+                    }
+
+                    setIsOpen(false);
+                  }}
+                >
+                  {option.label}
+                  <Check
+                    className={cn(
+                      'ml-auto',
+                      chosenOptions.includes(option.value) ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
                 </CommandItem>
               ))}
             </CommandGroup>

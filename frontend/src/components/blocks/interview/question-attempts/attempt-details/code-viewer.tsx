@@ -4,6 +4,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type ICodeProps = {
   code: string;
@@ -24,7 +25,7 @@ export const CodeViewer: FC<ICodeProps> = ({ code, language }) => {
   };
 
   return (
-    <div className='flex size-full flex-col overflow-y-auto rounded-md'>
+    <div className='flex size-full flex-col !overflow-clip rounded-lg'>
       <div className='bg-muted-foreground text-muted dark:bg-muted dark:text-muted-foreground flex w-full items-center justify-between px-3 py-2'>
         <span className='text-sm font-medium'>{language}</span>
         <Button
@@ -41,18 +42,21 @@ export const CodeViewer: FC<ICodeProps> = ({ code, language }) => {
           )}
         </Button>
       </div>
-      <SyntaxHighlighter
-        customStyle={{
-          borderRadius: '0 0 0.3em 0.3em',
-          margin: 0,
-          minHeight: '100px',
-        }}
-        PreTag='div'
-        style={oneDark}
-        language={language}
-      >
-        {code}
-      </SyntaxHighlighter>
+      <ScrollArea className='flex h-full max-h-[calc(100dvh-160px)] flex-col'>
+        <SyntaxHighlighter
+          customStyle={{
+            borderRadius: '0 0 0.3em 0.3em',
+            margin: 0,
+            minHeight: '100px',
+          }}
+          PreTag='div'
+          style={oneDark}
+          language={language}
+          // showLineNumbers
+        >
+          {code}
+        </SyntaxHighlighter>
+      </ScrollArea>
     </div>
   );
 };

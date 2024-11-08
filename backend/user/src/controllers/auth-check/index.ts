@@ -16,7 +16,7 @@ export const checkIsAuthed: IRouteHandler = async (req, res) => {
       '[/auth-check/check-is-authed]: Expires At ' + new Date(expireTimeInMillis).toLocaleString()
     );
     const user = await db
-      .select({ name: users.username })
+      .select({ name: users.username, isAdmin: users.isAdmin, email: users.email })
       .from(users)
       .where(eq(users.id, decoded.id))
       .limit(1);
@@ -25,6 +25,8 @@ export const checkIsAuthed: IRouteHandler = async (req, res) => {
       expiresAt: expireTimeInMillis,
       userId: decoded.id,
       username: user.length > 0 ? user[0].name : undefined,
+      email: user.length > 0 ? user[0].email : undefined,
+      isAdmin: user.length > 0 ? user[0].isAdmin : undefined,
     });
   }
 
