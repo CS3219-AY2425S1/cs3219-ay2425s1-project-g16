@@ -2,6 +2,8 @@ import crypto from 'crypto';
 
 import { StatusCodes } from 'http-status-codes';
 
+import { db, rooms } from '@/lib/db';
+
 import { IGetCollabRoomPayload, IGetCollabRoomResponse } from './types';
 
 export async function getCollabRoomService(
@@ -9,7 +11,9 @@ export async function getCollabRoomService(
 ): Promise<IGetCollabRoomResponse> {
   const { userid1, userid2, questionid } = payload;
 
-  if (!userid1 || !userid2 || !questionid) {
+  const qid = Number(questionid);
+
+  if (!userid1 || !userid2 || isNaN(qid)) {
     return {
       code: StatusCodes.UNPROCESSABLE_ENTITY,
       error: {
@@ -18,14 +22,30 @@ export async function getCollabRoomService(
     };
   }
 
-  const randomString = crypto.randomBytes(4).toString('hex');
-  const combinedString = `uid1=${userid1}|uid2=${userid2}|qid=${questionid}|rand=${randomString}`;
-  const hash = crypto.createHash('sha256');
-  const uniqueRoomName = hash.update(combinedString).digest('hex');
-  return {
-    code: StatusCodes.OK,
-    data: {
-      roomName: uniqueRoomName,
-    },
-  };
+  const roomId = crypto.randomBytes(6).toString('hex');
+
+  try {
+    await db.insert(rooms).values({
+      roomId,
+      userId1: userid1,
+      userId2: userid2,
+      questionId: qid,
+      createdAt: new Date(),
+    });
+
+    return {
+      code: StatusCodes.OK,
+      data: {
+        roomName: roomId,
+      },
+    };
+  } catch (error) {
+    console.error('Error saving room to database:', error);
+    return {
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      error: {
+        message: 'Failed to create room',
+      },
+    };
+  }
 }

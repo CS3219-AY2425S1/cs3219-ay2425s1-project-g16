@@ -36,6 +36,8 @@ export const matchApiClient = axios.create({
   ...basePostHeaders,
 });
 
+export const collabApiGetClient = axios.create(getApiClientBaseConfig(COLLAB_SERVICE));
+
 export const collabApiClient = axios.create({
   ...getApiClientBaseConfig(COLLAB_SERVICE),
   ...basePostHeaders,
