@@ -7,10 +7,13 @@ import { getRooms } from '@/services/collab-service';
 import { useAuthedRoute } from '@/stores/auth-store';
 import { IInterviewRoom } from '@/types/collab-types';
 
+import { columns } from './interviews-columns';
+import { InterviewsTable } from './interviews-table';
+
 export const InterviewsPage = () => {
   const { userId } = useAuthedRoute();
   const { crumbs } = useCrumbs();
-  const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery<
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isError } = useInfiniteQuery<
     Array<IInterviewRoom>
   >({
     queryKey: ['interviews', userId],
@@ -37,7 +40,9 @@ export const InterviewsPage = () => {
 
   return (
     <WithNavBanner crumbs={crumbs}>
-      <div />
+      <div className='max-w-[calc(min(650px,100dvw))] p-8'>
+        <InterviewsTable columns={columns} data={_rooms} isError={isError} />
+      </div>
     </WithNavBanner>
   );
 };

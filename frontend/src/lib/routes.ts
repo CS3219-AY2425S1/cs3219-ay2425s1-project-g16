@@ -27,6 +27,10 @@ const TOP_LEVEL_AUTHED_ROUTES = {
   ],
   [ROUTES.INTERVIEW.replace(':roomId', '')]: [
     {
+      path: ROUTES.INTERVIEWS,
+      title: 'Interviews',
+    },
+    {
       path: ROUTES.INTERVIEW,
       title: 'Interview',
     },

@@ -27,7 +27,7 @@ const NavBar = observer(() => {
               <Link to={ROUTES.QUESTIONS}>Questions</Link>
             </Button>
             <Button variant='ghost' asChild>
-              <Link to={ROUTES.INTERVIEWS}>Interviews</Link>
+              <Link to={ROUTES.INTERVIEWS}>Ongoing Interviews</Link>
             </Button>
           </>
         )}
