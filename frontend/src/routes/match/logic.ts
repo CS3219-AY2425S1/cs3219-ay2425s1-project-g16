@@ -14,13 +14,13 @@ export interface MatchFormData {
   difficulty: string;
 }
 
-const getTopicsQueryConfig = () =>
+export const getTopicsQueryConfig = () =>
   queryOptions({
     queryKey: ['topics'],
     queryFn: async () => fetchTopics(),
   });
 
-const getDifficultiesQueryConfig = () => {
+export const getDifficultiesQueryConfig = () => {
   return queryOptions({
     queryKey: ['difficulties'],
     queryFn: async () => fetchDifficulties(),

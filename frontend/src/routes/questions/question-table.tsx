@@ -14,7 +14,8 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { AdminEditForm } from '@/components/blocks/questions/admin-edit-form';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ export function QuestionTable<TData, TValue>({
   isError,
 }: QuestionTableProps<TData, TValue>) {
   const { isAdmin } = useAuthedRoute();
+  const [_searchParams, setSearchParams] = useSearchParams();
   const [isAdminAddFormOpen, setIsAdminAddFormOpen] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -76,6 +78,12 @@ export function QuestionTable<TData, TValue>({
   const handleStatusFilterChange = (value: string) => {
     setColumnFilters(value == 'all' ? [] : [{ id: 'attempted', value: value === 'attempted' }]);
   };
+
+  useEffect(() => {
+    const newParams = new URLSearchParams();
+    newParams.set('pageNum', String(pagination.pageIndex));
+    setSearchParams(newParams);
+  }, [pagination.pageIndex]);
 
   return (
     <div className='flex size-full flex-col'>

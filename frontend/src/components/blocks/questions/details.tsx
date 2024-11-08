@@ -1,6 +1,8 @@
 import { DotsVerticalIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import Markdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -99,15 +101,26 @@ export const QuestionDetails = ({
         <Markdown
           rehypePlugins={[rehypeKatex]}
           remarkPlugins={[remarkMath, remarkGfm]}
-          className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground prose-pre:bg-secondary prose-pre:text-secondary-foreground leading-normal'
+          className='prose prose-neutral text-card-foreground prose-strong:text-card-foreground prose-pre:p-0 leading-normal'
           components={{
             code: ({ children, className, ...rest }) => {
-              // const isCodeBlock = /language-(\w+)/.exec(className || '');
-
-              return (
+              const match = /language-(\w+)/.exec(className || '');
+              return match ? (
+                <SyntaxHighlighter
+                  customStyle={{
+                    borderRadius: '0.3em',
+                    margin: 0,
+                  }}
+                  PreTag='div'
+                  style={oneLight}
+                  language={match[1]}
+                >
+                  {String(children)}
+                </SyntaxHighlighter>
+              ) : (
                 <code
                   {...rest}
-                  className='dark:bg-secondary dark:text-secondary-foreground rounded px-1.5 py-1 font-mono'
+                  className='bg-secondary text-secondary-foreground rounded px-1.5 py-1 font-mono'
                 >
                   {children}
                 </code>
