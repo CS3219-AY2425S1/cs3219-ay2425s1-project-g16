@@ -3,7 +3,7 @@ import { MessageSquareIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { sendChatMessage } from '@/services/collab-service';
+import { sendChatMessage } from '@/services/ai-service';
 
 import { ChatLayout } from './chat/chat-layout';
 import { ChatMessageType } from './chat/chat-message';

@@ -2,6 +2,7 @@ import http from 'http';
 import { exit } from 'process';
 
 import cors from 'cors';
+import { sql } from 'drizzle-orm';
 import express, { json } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import pino from 'pino-http';
@@ -47,7 +48,7 @@ app.get('/health', (_req, res) => res.status(StatusCodes.OK).send('OK'));
 
 export const dbHealthCheck = async () => {
   try {
-    await db`SELECT 1`;
+    await db.execute(sql`SELECT 1`);
     logger.info('Connected to DB');
   } catch (error) {
     const { message } = error as Error;

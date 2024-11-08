@@ -31,13 +31,13 @@ export const AttemptDetailsDialog: FC<PropsWithChildren<AttemptDetailsPaneProps>
       ) : (
         <DialogTrigger>{triggerText}</DialogTrigger>
       )}
-      <DialogContent className='border-border text-primary flex max-h-dvh flex-col'>
+      <DialogContent className='border-border text-primary max-w-screen-md'>
         <DialogHeader>
           <DialogTitle className=''>
             Attempt&nbsp;<span className='font-mono'>{attemptId}</span>
           </DialogTitle>
         </DialogHeader>
-        <DialogDescription>
+        <DialogDescription className='size-full max-h-[calc(100dvh-200px)] overflow-auto'>
           <CodeViewer {...{ code, language }} />
         </DialogDescription>
         <DialogFooter>

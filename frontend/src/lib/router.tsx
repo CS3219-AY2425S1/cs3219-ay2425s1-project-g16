@@ -5,7 +5,8 @@ import { RootLayout } from '@/components/blocks/root-layout';
 import { loader as routeGuardLoader, RouteGuard } from '@/components/blocks/route-guard';
 import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
-import { InterviewRoom, loader as interviewRoomLoader } from '@/routes/interview/[room]';
+import { InterviewsPage } from '@/routes/interview';
+import { InterviewRoomContainer, loader as interviewRoomLoader } from '@/routes/interview/[room]';
 import { Login } from '@/routes/login';
 import { Match } from '@/routes/match';
 import { loader as topicsLoader } from '@/routes/match/logic';
@@ -43,9 +44,13 @@ export const router = createBrowserRouter([
                 element: <QuestionDetailsPage />,
               },
               {
+                path: ROUTES.INTERVIEWS,
+                element: <InterviewsPage />,
+              },
+              {
                 path: ROUTES.INTERVIEW,
-                loader: interviewRoomLoader(queryClient),
-                element: <InterviewRoom />,
+                loader: interviewRoomLoader,
+                element: <InterviewRoomContainer />,
               },
               {
                 path: ROUTES.MATCH,

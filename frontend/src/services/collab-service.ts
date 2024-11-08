@@ -1,62 +1,40 @@
-import { collabApiClient } from './api-clients';
+import { IInterviewRoom } from '@/types/collab-types';
 
-const AI_SERVICE_ROUTES = {
-  CHAT: '/ai/chat',
+import { collabApiGetClient } from './api-clients';
+
+const COLLAB_SERVICE_ROUTES = {
+  CHECK_ROOM_AUTH: '/room/auth',
+  GET_ROOMS: '/room/rooms',
 };
 
-interface ChatMessage {
-  role: string;
-  content: string;
-}
+export const checkRoomAuthorization = (roomId: string, userId: string) => {
+  const searchParams = new URLSearchParams();
+  searchParams.set('roomId', roomId);
+  searchParams.set('userId', userId);
+  return collabApiGetClient
+    .get(`${COLLAB_SERVICE_ROUTES.CHECK_ROOM_AUTH}?${searchParams.toString()}`)
+    .then((response) => {
+      return { isAuthed: response.status < 400, questionId: response.data?.questionId };
+    })
+    .catch((_err) => {
+      return { isAuthed: false, questionId: undefined };
+    });
+};
 
-interface ChatPayload {
-  messages: ChatMessage[];
-  editorCode?: string;
-  language?: string;
-  questionDetails?: string;
-}
+export const getRooms = (userId: string, offset?: number, limit?: number) => {
+  const searchParams = new URLSearchParams();
+  searchParams.set('userId', userId);
 
-interface ChatResponse {
-  success: boolean;
-  message: string;
-}
-
-export const sendChatMessage = async (
-  payload: ChatPayload,
-  onStream?: (chunk: string) => void
-): Promise<ChatResponse> => {
-  try {
-    if (onStream) {
-      // Streaming request
-      await collabApiClient.post(AI_SERVICE_ROUTES.CHAT, payload, {
-        headers: {
-          Accept: 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-        },
-        responseType: 'text',
-        onDownloadProgress: (progressEvent) => {
-          const rawText: string = progressEvent.event.target.responseText;
-
-          if (rawText) {
-            onStream(rawText);
-          }
-        },
-      });
-
-      return {
-        success: true,
-        message: 'Streaming completed successfully',
-      };
-    } else {
-      const response = await collabApiClient.post(AI_SERVICE_ROUTES.CHAT, payload);
-      return response.data as ChatResponse;
-    }
-  } catch (err) {
-    console.error('Error in sendChatMessage:', err);
-    return {
-      success: false,
-      message: 'An error occurred while processing your request.',
-    };
+  if (offset) {
+    searchParams.set('offset', String(offset));
   }
+
+  if (limit) {
+    searchParams.set('limit', String(limit));
+  }
+
+  return collabApiGetClient
+    .get(`${COLLAB_SERVICE_ROUTES.GET_ROOMS}?${searchParams.toString()}`)
+    .then((response) => response.data as Array<IInterviewRoom>)
+    .catch((_err) => []);
 };

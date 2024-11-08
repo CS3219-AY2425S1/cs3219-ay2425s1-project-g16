@@ -1,3 +1,4 @@
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 export const config = {
@@ -8,4 +9,8 @@ export const config = {
   password: process.env.POSTGRES_PASSWORD,
 };
 
-export const db = postgres(config);
+const queryClient = postgres(config);
+
+export const db = drizzle(queryClient);
+
+export * from './schema';
