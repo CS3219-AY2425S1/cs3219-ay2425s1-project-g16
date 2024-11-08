@@ -193,6 +193,14 @@ export const Editor = ({
           height={`${Math.max((height as number) - EXTENSION_HEIGHT, MIN_EDITOR_HEIGHT)}px`}
           value={code}
           onChange={handleCodeChange}
+          onPaste={(_event) => {
+            const lang = localStorage.getItem('ai-asst-lang');
+
+            if (lang) {
+              setLanguage(lang as LanguageName);
+              localStorage.removeItem('ai-assist-lang');
+            }
+          }}
           theme={themePreset}
           lang={language}
           basicSetup={{

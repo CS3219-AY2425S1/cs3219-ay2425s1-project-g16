@@ -7,13 +7,10 @@ import { ForgotPassword } from '@/routes/forgot-password';
 import { HomePage } from '@/routes/home';
 import { InterviewRoom, loader as interviewRoomLoader } from '@/routes/interview/[room]';
 import { Login } from '@/routes/login';
+import { Match } from '@/routes/match';
 import { loader as topicsLoader } from '@/routes/match/logic';
-import { Match } from '@/routes/match/main';
+import { loader as questionsLoader, Questions } from '@/routes/questions';
 import { loader as questionDetailsLoader, QuestionDetailsPage } from '@/routes/questions/details';
-import {
-  // loader as questionsLoader,
-  Questions,
-} from '@/routes/questions/main';
 import { SignUp } from '@/routes/signup';
 
 import { queryClient } from './query-client';
@@ -36,6 +33,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: ROUTES.QUESTIONS,
+                loader: questionsLoader,
                 // loader: questionsLoader(queryClient),
                 element: <Questions />,
               },

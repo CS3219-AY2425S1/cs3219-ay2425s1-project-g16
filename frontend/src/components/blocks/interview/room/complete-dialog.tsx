@@ -1,3 +1,4 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useMutation } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { Dispatch, FC, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
@@ -7,8 +8,10 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { addQuestionAttempt } from '@/services/question-service';
@@ -69,6 +72,10 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
       // Navigate to home page
       setTimeout(() => {
         setCompleting(COMPLETION_STATES.EMPTY, true);
+        setIsOpen(false);
+        // Clear AI chat if moving away
+        localStorage.removeItem('ai-assist-lang');
+        localStorage.removeItem('ai_chat_history');
         navigate('/');
       }, 200);
     },
@@ -81,9 +88,12 @@ export const CompleteDialog: FC<PropsWithChildren<CompleteDialogProps>> = ({
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='border-border'>
-        <DialogHeader className='text-primary text-lg font-medium'>
-          Are you sure you wish to mark this question as complete?
+        <DialogHeader className='text-primary'>
+          <DialogTitle>Are you sure you wish to mark this question as complete?</DialogTitle>
         </DialogHeader>
+        <VisuallyHidden>
+          <DialogDescription />
+        </VisuallyHidden>
         <DialogFooter>
           <div className='flex w-full justify-between'>
             <Button

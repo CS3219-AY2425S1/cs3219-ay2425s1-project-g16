@@ -31,7 +31,7 @@ export const AttemptDetailsDialog: FC<PropsWithChildren<AttemptDetailsPaneProps>
       ) : (
         <DialogTrigger>{triggerText}</DialogTrigger>
       )}
-      <DialogContent className='border-border text-primary'>
+      <DialogContent className='border-border text-primary flex max-h-dvh flex-col'>
         <DialogHeader>
           <DialogTitle className=''>
             Attempt&nbsp;<span className='font-mono'>{attemptId}</span>

@@ -9,8 +9,12 @@ import { UserDropdown } from '@/components/common/user-dropdown';
 import { Button } from '@/components/ui/button';
 import { useRouterLocation } from '@/lib/hooks';
 import { ROUTES } from '@/lib/routes';
+import { useAuthedRoute } from '@/stores/auth-store';
+
+import { Badge } from '../ui/badge';
 
 const NavBar = observer(() => {
+  const data = useAuthedRoute();
   const { isLogin, isUnauthedRoute } = useRouterLocation();
 
   return (
@@ -41,7 +45,14 @@ const NavBar = observer(() => {
               </Button>
             )
           ) : (
-            <UserDropdown />
+            <>
+              {data?.isAdmin && (
+                <Badge className='uppercase' variant='easy'>
+                  <span>Admin</span>
+                </Badge>
+              )}
+              <UserDropdown />
+            </>
           )}
         </div>
       </nav>
