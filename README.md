@@ -13,8 +13,8 @@
 ## Architecture
 
 <img
-  src="./docs/architecture.png"
-  style="background:#f1f5f9;padding:16px;border-radius:12px"
+  src="./docs/architecture-dark.png"
+  style="padding:16px;border-radius:12px"
   alt="architecture diagram"
 />
 
