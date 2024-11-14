@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: match-db-network-policy
+  namespace: peerprep
+spec:
+  podSelector:
+    matchLabels:
+      peerprep.network.match-db: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-db: "true"
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            peerprep.network.match-db: "true"

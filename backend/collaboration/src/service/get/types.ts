@@ -1,0 +1,22 @@
+import { IServiceResponse } from '@/types';
+
+export type IGetCollabRoomPayload = {
+  userid1: string;
+  userid2: string;
+  questionid: string;
+};
+
+export type IGetCollabRoomResponse = IServiceResponse<{
+  roomName: string;
+}>;
+
+export type IGetAuthRoomPayload = {
+  roomId: string;
+  userId: string;
+};
+
+export type IGetRoomsPayload = {
+  userId: string;
+  offset?: number;
+  limit?: number;
+};

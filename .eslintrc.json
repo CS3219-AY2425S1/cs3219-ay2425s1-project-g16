@@ -1,0 +1,113 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:tailwindcss/recommended",
+    "plugin:@tanstack/eslint-plugin-query/recommended"
+    // "plugin:@tanstack/eslint-plugin-query"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "import",
+    "unused-imports",
+    "react",
+    "@typescript-eslint",
+    "tailwindcss",
+    "react-hooks",
+    "simple-import-sort"
+  ],
+  "rules": {
+    "@typescript-eslint/array-type": [
+      "error",
+      {
+        "default": "generic",
+        "readonly": "generic"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"]
+      }
+    ],
+    "@typescript-eslint/explicit-member-accessibility": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-unused-vars": 0,
+    "@typescript-eslint/no-use-before-define": 0,
+    
+    // Basic
+    "array-callback-return": "warn",
+    "no-console": "warn",
+    "no-multiple-empty-lines": ["error", { "max":1 }],
+    "no-prototype-builtins": 0,
+    // "no-expected-multiline": "warn", // can"t find rule definition
+
+    "padding-line-between-statements": [
+      "warn",
+      { "blankLine": "always", "prev": "*", "next": "block" },
+      { "blankLine": "always", "prev": "block", "next": "*" },
+      { "blankLine": "always", "prev": "*", "next": "block-like" },
+      { "blankLine": "always", "prev": "block-like", "next": "*" }
+    ],
+
+    // React
+    "react/display-name": 0,
+    "react/no-unescaped-entities": ["error", { "forbid": [">", "}", "\""] }],
+    "react/no-unknown-property": "off",
+    "react/self-closing-comp": [
+      "error",
+      {
+        "component": true,
+        "html": true
+      }
+    ],
+    "react-hooks/rules-of-hooks": "off",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "tailwindcss/enforces-negative-arbitrary-values": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "ignorePatterns": ["**/*.js"],
+  "overrides": [
+    {
+      "files": ["frontend/**/*.tsx"],
+      "rules": {
+        "react/prop-types": "off"
+      }
+    },
+    {
+      "files": ["*.js", "*.ts", "*.tsx"],
+      "rules": {
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              ["^(?:os|path|http|fs|crypto|util|events|stream|url|zlib|querystring|tls|dgram|net|dns|child_process|cluster|readline|vm|assert|buffer|process|timers)(\/.*)?$"],
+              ["^(?!(@\/|\\.\\.\/|\\.\/))"],
+              ["^@\/"],
+              ["^(?:\\.\/|\\.\\.\/|\\.)"]
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+# Command: docker-compose --env-file .env.local -f docker-compose.local.yaml up -d
+
+services:
+  user-db:
+    hostname: 'user-db'
+    image: postgres:16.4
+    container_name: 'user-db'
+    build:
+      context: ./backend/user/src/lib/db
+    env_file:
+      - ./backend/user/.env.local
+    volumes:
+      - 'user-db-docker:${USER_PGDATA}'
+    ports:
+      - '${USER_EXPRESS_DB_PORT}:5432'
+    restart: unless-stopped
+
+  question-db:
+    hostname: 'question-db'
+    image: postgres:16.4
+    container_name: 'question-db'
+    build:
+      context: ./backend/question/src/lib/db
+    env_file:
+      - ./backend/question/.env.local
+    volumes:
+      - 'question-db-docker:${QUESTION_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '${QUESTION_EXPRESS_DB_PORT}:5432'
+    restart: unless-stopped
+
+  collab-db:
+    hostname: 'collab-db'
+    image: postgres:16.4
+    container_name: 'collab-db'
+    env_file:
+      - ./backend/collaboration/.env.local
+    volumes:
+      - 'collab-db-docker:${COLLAB_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '${COLLAB_EXPRESS_DB_PORT}:5432'
+    restart: unless-stopped
+
+  match-db:
+    hostname: 'match-db'
+    image: redis/redis-stack
+    container_name: 'match-db'
+    env_file:
+      - ./backend/matching/.env.local
+    volumes:
+      - 'match-db-docker:/data'
+    ports:
+      - '${MATCHING_DB_HOST_MGMT_PORT}:8001'
+      - '${MATCHING_DB_HOST_PORT}:6379'
+    restart: unless-stopped
+
+  chat-db:
+    hostname: 'chat-db'
+    image: postgres:16.4
+    container_name: 'chat-db'
+    env_file:
+      - ./backend/chat/.env.local
+    volumes:
+      - 'chat-db-docker:${CHAT_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '${CHAT_EXPRESS_DB_PORT}:5432'
+    restart: unless-stopped
+
+  # match-db-ui:
+  #   hostname: "match-db-ui"
+  #   image: redis/redisinsight
+  #   container_name: "match-db-ui"
+  #   ports:
+  #     - "${MATCHING_DB_HOST_MGMT_PORT}:5540"
+  #   restart: unless-stopped
+
+volumes:
+  user-db-docker:
+    external: true
+  question-db-docker:
+    external: true
+  collab-db-docker:
+    external: true
+  match-db-docker:
+    external: true
+  chat-db-docker:
+    external: true

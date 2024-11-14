@@ -1,0 +1,46 @@
+{
+  "name": "peerprep-g16",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --names user,qn,collab,match,chat,fe --pad-prefix \"npm run dev:user\" \"npm run dev:question\" \"npm run dev:collab\" \"npm run dev:match\" \"npm run dev:chat\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:user": "npm run dev -w user",
+    "dev:question": "npm run dev -w question",
+    "dev:collab": "npm run dev -w collaboration",
+    "dev:match": "npm run dev -w matching",
+    "dev:chat": "npm run dev -w chat",
+    "build": "npm run build --workspaces --if-present",
+    "fmt": "prettier --config .prettierrc \"./**/*.{ts,tsx}\" --write",
+    "lint": "eslint --config .eslintrc.json \"./**/*.{ts,tsx}\" --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "prettier --config .prettierrc --write",
+      "eslint --config .eslintrc.json --fix"
+    ]
+  },
+  "workspaces": [
+    "backend/*",
+    "frontend",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@tanstack/eslint-plugin-query": "^5.56.1",
+    "@typescript-eslint/eslint-plugin": "^8.5.0",
+    "concurrently": "^9.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-tailwindcss": "^3.17.4",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  }
+}

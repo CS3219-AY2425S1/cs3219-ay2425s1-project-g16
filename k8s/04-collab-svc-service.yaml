@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: collab-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: collab-service
+spec:
+  type: ClusterIP
+  selector:
+    project: peerprep
+    peerprep.service: collab-service
+  ports:
+    - name: collab-svc-prt
+      port: 9003
+      targetPort: collab-svc-ctr

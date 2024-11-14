@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: chat-service
+spec:
+  type: ClusterIP
+  selector:
+    project: peerprep
+    peerprep.service: chat-service
+  ports:
+    - name: chat-svc-prt
+      port: 9005
+      targetPort: chat-svc-ctr

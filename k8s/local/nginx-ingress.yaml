@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: peerprep-ingress
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: app-ingress
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: peerprep-g16.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000

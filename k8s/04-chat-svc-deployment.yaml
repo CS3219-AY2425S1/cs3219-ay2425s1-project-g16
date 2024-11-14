@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: chat-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: peerprep
+      peerprep.service: chat-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        project: peerprep
+        peerprep.service: chat-service
+        peerprep.network.chat-api: "true"
+        peerprep.network.chat-db: "true"
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16.4
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: chat-secret
+                  key: EXPRESS_DB_HOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: chat-secret
+                  key: EXPRESS_DB_PORT
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: chat-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: chat-secret
+                  key: POSTGRES_USER
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: chat-secret
+                  key: POSTGRES_DB
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while ! psql -c 'SELECT 1' > /dev/null 2>&1; do
+                echo "Waiting for $PGDATABASE"
+                sleep 1
+              done
+              echo "$PGDATABASE is ready!"
+      
+      containers:
+        - name: chat-express
+          image: ay2425s1cs3219g16/chat-express:latest
+          imagePullPolicy: Always
+          envFrom:
+          - secretRef: 
+              name: chat-secret
+          env:
+            # When load testing, it exposes port 80 by default.
+            - name: LOAD_TEST_POD
+              value: http://chat-service-load-test
+            - name: PEERPREP_UI_HOST
+              value: http://frontend
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - wget --no-verbose --tries=1 --spider http://localhost:9005/health || exit 1
+            periodSeconds: 30
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 5
+          ports:
+            - name: chat-svc-ctr
+              containerPort: 9005
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+                

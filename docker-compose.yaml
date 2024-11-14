@@ -1,0 +1,348 @@
+# Command: docker-compose --env-file .env.local up -d
+
+services:
+  # Databases
+  user-db:
+    hostname: 'user-db'
+    image: 'postgres:16.4'
+    container_name: 'user-db'
+    build:
+      context: ./backend/user/src/lib/db
+    env_file:
+      - ./backend/user/.env.compose
+    volumes:
+      - 'user-db-docker:${USER_PGDATA}'
+    restart: unless-stopped
+    networks:
+      - user-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-user-express -d user']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  question-db:
+    hostname: 'question-db'
+    image: postgres:16.4
+    container_name: 'question-db'
+    build:
+      context: ./backend/question/src/lib/db
+    env_file:
+      - ./backend/question/.env.compose
+    volumes:
+      - 'question-db-docker:${QUESTION_PGDATA}'
+    restart: unless-stopped
+    networks:
+      - question-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-qn-express -d question']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  collab-db:
+    hostname: 'collab-db'
+    image: postgres:16.4
+    container_name: 'collab-db'
+    build:
+      context: ./backend/collaboration/src/lib/db
+    env_file:
+      - ./backend/collaboration/.env.local
+    volumes:
+      - 'collab-db-docker:${COLLAB_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - collab-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-collab-express -d collab']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  chat-db:
+    hostname: 'chat-db'
+    image: postgres:16.4
+    container_name: 'chat-db'
+    build:
+      context: ./backend/chat/src/lib/db
+    env_file:
+      - ./backend/chat/.env.compose
+    volumes:
+      - 'chat-db-docker:${CHAT_PGDATA}'
+      #  - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - chat-db-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U peerprep-chat-express -d chat']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  match-db:
+    hostname: 'match-db'
+    # To enable Admin UI for cluster ↙️
+    # image: redis/redis-stack
+    # ports:
+    # - 8001:8001
+    image: redis/redis-stack-server
+    container_name: 'match-db'
+    env_file:
+      - ./backend/matching/.env.compose
+    volumes:
+      - 'match-db-docker:/data'
+    restart: unless-stopped
+    networks:
+      - match-db-network
+
+  # Services
+  user-service:
+    image: 'user-express'
+    container_name: '${USER_SERVICE_NAME}'
+    build:
+      context: ./backend/user
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${USER_EXPRESS_PORT}
+    env_file:
+      - ./backend/user/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=user-db
+      - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      user-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - user-db-network
+      - user-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${USER_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  question-service:
+    image: 'question-express'
+    container_name: '${QUESTION_SERVICE_NAME}'
+    build:
+      context: ./backend/question
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${QUESTION_EXPRESS_PORT}
+    env_file:
+      - ./backend/question/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=question-db
+      - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      question-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - question-db-network
+      - question-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${QUESTION_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  collab-service:
+    image: 'collab-express'
+    container_name: '${COLLAB_SERVICE_NAME}'
+    build:
+      context: ./backend/collaboration
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${COLLAB_EXPRESS_PORT}
+    env_file:
+      - ./backend/collaboration/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=collab-db
+      - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      collab-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - collab-db-network
+      - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${COLLAB_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  matching-service:
+    image: 'match-express'
+    container_name: '${MATCHING_SERVICE_NAME}'
+    build:
+      context: ./backend/matching
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${MATCHING_EXPRESS_PORT}
+    env_file:
+      - ./backend/matching/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - MATCHING_DB_HOSTNAME=match-db
+      - MATCHING_DB_PORT=6379
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+      - PEERPREP_USER_HOST=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      - PEERPREP_QUESTION_HOST=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - PEERPREP_COLLAB_HOST=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
+    depends_on:
+      - match-db
+      - user-service
+      - question-service
+    networks:
+      - match-db-network
+      - match-api-network
+      - user-api-network
+      - question-api-network
+      - collab-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${MATCHING_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  chat-service:
+    image: 'chat-express'
+    container_name: '${CHAT_SERVICE_NAME}'
+    build:
+      context: ./backend/chat
+      dockerfile: express.Dockerfile
+      target: production
+      args:
+        # For building with the correct env vars
+        - port=${CHAT_EXPRESS_PORT}
+    env_file:
+      - ./backend/chat/.env.compose
+    environment:
+      # Docker Compose Specific for Service Discovery
+      - EXPRESS_DB_HOST=chat-db
+      - EXPRESS_DB_PORT=5432
+      - PEERPREP_UI_HOST=http://${FRONTEND_SERVICE_NAME}:${FRONTEND_PORT}
+    depends_on:
+      chat-db:
+        condition: service_healthy
+        restart: true
+    networks:
+      - chat-db-network
+      - chat-api-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:${CHAT_EXPRESS_PORT}/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  # Frontend
+  frontend:
+    image: 'frontend'
+    container_name: 'frontend'
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.Dockerfile
+      target: production
+      args:
+        - FRONTEND_PORT=${FRONTEND_PORT}
+    ports:
+      - '3000:${FRONTEND_PORT}'
+    env_file:
+      - ./frontend/.env.compose
+    environment:
+      - VITE_USER_SERVICE=http://${USER_SERVICE_NAME}:${USER_EXPRESS_PORT}
+      - VITE_QUESTION_SERVICE=http://${QUESTION_SERVICE_NAME}:${QUESTION_EXPRESS_PORT}
+      - VITE_COLLAB_SERVICE=http://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
+      - VITE_COLLAB_WS=ws://${COLLAB_SERVICE_NAME}:${COLLAB_EXPRESS_PORT}
+      - VITE_MATCHING_SERVICE=http://${MATCHING_SERVICE_NAME}:${MATCHING_EXPRESS_PORT}
+      - VITE_CHAT_SERVICE=http://${CHAT_SERVICE_NAME}:${CHAT_EXPRESS_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    depends_on:
+      user-service:
+        condition: service_healthy
+        restart: true
+      question-service:
+        condition: service_healthy
+        restart: true
+      matching-service:
+        condition: service_healthy
+        restart: true
+      collab-service:
+        condition: service_healthy
+        restart: true
+      chat-service:
+        condition: service_healthy
+        restart: true
+    networks:
+      - user-api-network
+      - question-api-network
+      - match-api-network
+      - collab-api-network
+      - chat-api-network
+
+volumes:
+  # Persistent Volumes for Databases
+  user-db-docker:
+    external: true
+  question-db-docker:
+    external: true
+  # Persistent Room Server
+  collab-db-docker:
+    external: true
+  # Redis Match server
+  match-db-docker:
+    external: true
+  chat-db-docker:
+    external: true
+
+networks:
+  # Isolated API Server Networks
+  user-db-network:
+    driver: bridge
+  question-db-network:
+    driver: bridge
+  collab-db-network:
+    driver: bridge
+  match-db-network:
+    driver: bridge
+  chat-db-network:
+    driver: bridge
+
+  # View-Controller Networks
+  user-api-network:
+    driver: bridge
+  question-api-network:
+    driver: bridge
+  collab-api-network:
+    driver: bridge
+  match-api-network:
+    driver: bridge
+  chat-api-network:
+    driver: bridge

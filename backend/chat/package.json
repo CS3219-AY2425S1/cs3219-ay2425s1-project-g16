@@ -1,0 +1,47 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "env-cmd -f .env.local nodemon src/index.ts | pino-pretty",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/index.js",
+    "build:local": "env-cmd -f .env.local tsc && tsc-alias",
+    "start:local": "env-cmd -f .env.local node dist/index.js",
+    "db:generate": "env-cmd -f .env.local drizzle-kit generate",
+    "db:migrate": "env-cmd -f .env.local tsx ./src/lib/db/migrate.ts",
+    "db:prod:migrate": "tsx ./src/lib/db/migrate.ts",
+    "db:prod:seed": "tsx ./src/lib/db/seed.ts",
+    "db:seed": "env-cmd -f .env.local tsx src/lib/db/seed.ts",
+    "db:seed:prod": "tsx src/lib/db/seed.ts",
+    "fmt": "prettier --config .prettierrc src --write",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.33.0",
+    "express": "^4.21.0",
+    "http": "^0.0.1-security",
+    "http-status-codes": "^2.3.0",
+    "pino": "^9.4.0",
+    "pino-http": "^10.3.0",
+    "postgres": "^3.4.4",
+    "socket.io": "^4.8.1",
+    "tsc-alias": "^1.8.10",
+    "tsx": "^4.19.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.5",
+    "drizzle-kit": "^0.24.2",
+    "nodemon": "^3.1.4",
+    "pino-pretty": "^11.2.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

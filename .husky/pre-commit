@@ -1,0 +1,4 @@
+
+npx lint-staged
+
+"$(pwd)/scripts/inject-openai-key.sh"

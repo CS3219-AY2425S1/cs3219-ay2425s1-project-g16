@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: peerprep
+  labels:
+    project: peerprep
+    peerprep.service: frontend
+spec:
+  type: ClusterIP
+  selector:
+    project: peerprep
+    peerprep.service: frontend
+  ports:
+    - name: frontend-prt
+      port: 3000
+      targetPort: frontend-ctr
